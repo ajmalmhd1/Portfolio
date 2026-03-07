@@ -1,4 +1,4 @@
-
+BASIC VISUAL FRAMEWORK
            
            MACHINE LEARNING ALGORITHMS
 
@@ -28,7 +28,7 @@
 
  GANs | Diffusion Models | Large Language Models
 
- Algorithm Table
+ # 
 
 | Algorithm                            | Type                         | Domain                 | How it Works                                                                | Example Use Case                 |
 | ------------------------------------ | ---------------------------- | ---------------------- | --------------------------------------------------------------------------- | -------------------------------- |
