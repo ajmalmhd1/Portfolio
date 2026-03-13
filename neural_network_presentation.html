@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Networks: A Visual Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1c1c28;
+    --accent: #00e5ff;
+    --accent2: #ff6b6b;
+    --accent3: #a78bfa;
+    --accent4: #34d399;
+    --text: #f0f0f8;
+    --muted: #a8a8b8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    overflow-x: hidden;
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    padding: 2rem;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 20s linear infinite;
+  }
+
+  @keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(60px); }
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-badge {
+    background: rgba(0,229,255,0.1);
+    border: 1px solid rgba(0,229,255,0.3);
+    color: var(--accent);
+    padding: 6px 18px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+    animation: fadeSlide 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 900;
+    line-height: 0.95;
+    position: relative;
+    z-index: 2;
+    animation: fadeSlide 0.8s 0.2s ease both;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    color: #b0b0c4;
+    font-size: 0.92rem;
+    letter-spacing: 0.1em;
+    margin-top: 1.5rem;
+    position: relative;
+    z-index: 2;
+    animation: fadeSlide 0.8s 0.4s ease both;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    animation: bounce 2s ease-in-out infinite;
+    z-index: 2;
+  }
+
+  @keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  section {
+    padding: 6rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 3rem;
+  }
+
+  .arch-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 3rem;
+    margin: 2rem 0;
+    overflow-x: auto;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+
+  .card:hover { transform: translateY(-4px); }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .card.c1::before { background: var(--accent); }
+  .card.c1:hover { border-color: rgba(0,229,255,0.3); }
+  .card.c2::before { background: var(--accent3); }
+  .card.c2:hover { border-color: rgba(167,139,250,0.3); }
+  .card.c3::before { background: var(--accent2); }
+  .card.c3:hover { border-color: rgba(255,107,107,0.3); }
+  .card.c4::before { background: var(--accent4); }
+  .card.c4:hover { border-color: rgba(52,211,153,0.3); }
+  .card.c5::before { background: #fbbf24; }
+  .card.c5:hover { border-color: rgba(251,191,36,0.3); }
+  .card.c6::before { background: #f472b6; }
+  .card.c6:hover { border-color: rgba(244,114,182,0.3); }
+
+  .card-num {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .card.c1 .card-title { color: var(--accent); }
+  .card.c2 .card-title { color: var(--accent3); }
+  .card.c3 .card-title { color: var(--accent2); }
+  .card.c4 .card-title { color: var(--accent4); }
+  .card.c5 .card-title { color: #fbbf24; }
+  .card.c6 .card-title { color: #f472b6; }
+
+  .card p {
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.85;
+    margin-bottom: 1rem;
+  }
+
+  .card-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-top: 0.5rem;
+  }
+
+  .card.c1 .card-tag { background: rgba(0,229,255,0.1); color: var(--accent); }
+  .card.c2 .card-tag { background: rgba(167,139,250,0.1); color: var(--accent3); }
+  .card.c3 .card-tag { background: rgba(255,107,107,0.1); color: var(--accent2); }
+  .card.c4 .card-tag { background: rgba(52,211,153,0.1); color: var(--accent4); }
+  .card.c5 .card-tag { background: rgba(251,191,36,0.1); color: #fbbf24; }
+  .card.c6 .card-tag { background: rgba(244,114,182,0.1); color: #f472b6; }
+
+  .formula-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.82rem;
+    margin-top: 0.75rem;
+    color: var(--accent);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+  }
+
+  .activation-demo {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .act-pill {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+
+  .flow-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 3rem;
+    margin: 2rem 0;
+  }
+
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .flow-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .flow-step-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.25rem;
+  }
+
+  .flow-step-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    max-width: 120px;
+    line-height: 1.6;
+  }
+
+  .flow-arrow {
+    color: var(--muted);
+    font-size: 1.2rem;
+    padding: 0 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .summary-section {
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(0,229,255,0.05) 100%);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 24px;
+    padding: 4rem 3rem;
+    margin: 2rem 0;
+    text-align: center;
+  }
+
+  .summary-section h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 1.5rem;
+    font-weight: 900;
+  }
+
+  .summary-section h2 span { color: var(--accent); }
+
+  .summary-section p {
+    color: var(--muted);
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    font-size: 0.9rem;
+    line-height: 1.9;
+  }
+
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 2.5rem;
+    text-align: left;
+  }
+
+  .insight-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .insight-card .icon { font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .insight-card h4 { font-size: 0.85rem; margin-bottom: 0.4rem; letter-spacing: 0.05em; }
+  .insight-card p { color: var(--muted); font-size: 0.78rem; line-height: 1.7; margin: 0; }
+
+  .divider { width: 100%; height: 1px; background: var(--border); margin: 0; }
+
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    border-top: 1px solid var(--border);
+  }
+
+  .full-bg { background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge">Portfolio Artifact · Neural Networks</div>
+  <h1>Understanding<br><em>Neural</em><br>Networks</h1>
+  <p class="hero-sub">A Visual Guide to Architecture, Components &amp; Learning</p>
+  <div class="scroll-hint">↓ scroll to explore</div>
+</div>
+
+<div class="divider"></div>
+
+<section>
+  <div class="section-label">01 — Architecture</div>
+  <h2 class="section-title">How Data Flows<br>Through a Network</h2>
+
+  <div class="arch-section">
+    <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:760px;display:block;margin:0 auto;">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="rgba(100,100,120,0.6)"/>
+        </marker>
+      </defs>
+      <text x="80"  y="24" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#6b6b80" letter-spacing="2">INPUT</text>
+      <text x="270" y="24" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#6b6b80" letter-spacing="2">HIDDEN 1</text>
+      <text x="450" y="24" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#6b6b80" letter-spacing="2">HIDDEN 2</text>
+      <text x="640" y="24" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#6b6b80" letter-spacing="2">OUTPUT</text>
+      <g opacity="0.25" stroke="rgba(0,229,255,0.7)" stroke-width="1">
+        <line x1="102" y1="80"  x2="248" y2="75"/><line x1="102" y1="80"  x2="248" y2="135"/>
+        <line x1="102" y1="80"  x2="248" y2="195"/><line x1="102" y1="80"  x2="248" y2="255"/>
+        <line x1="102" y1="140" x2="248" y2="75"/><line x1="102" y1="140" x2="248" y2="135"/>
+        <line x1="102" y1="140" x2="248" y2="195"/><line x1="102" y1="140" x2="248" y2="255"/>
+        <line x1="102" y1="200" x2="248" y2="75"/><line x1="102" y1="200" x2="248" y2="135"/>
+        <line x1="102" y1="200" x2="248" y2="195"/><line x1="102" y1="200" x2="248" y2="255"/>
+      </g>
+      <g opacity="0.2" stroke="rgba(167,139,250,0.7)" stroke-width="1">
+        <line x1="292" y1="75"  x2="428" y2="90"/><line x1="292" y1="75"  x2="428" y2="160"/>
+        <line x1="292" y1="75"  x2="428" y2="230"/><line x1="292" y1="135" x2="428" y2="90"/>
+        <line x1="292" y1="135" x2="428" y2="160"/><line x1="292" y1="135" x2="428" y2="230"/>
+        <line x1="292" y1="195" x2="428" y2="90"/><line x1="292" y1="195" x2="428" y2="160"/>
+        <line x1="292" y1="195" x2="428" y2="230"/><line x1="292" y1="255" x2="428" y2="90"/>
+        <line x1="292" y1="255" x2="428" y2="160"/><line x1="292" y1="255" x2="428" y2="230"/>
+      </g>
+      <g opacity="0.25" stroke="rgba(52,211,153,0.7)" stroke-width="1">
+        <line x1="472" y1="90"  x2="618" y2="120"/><line x1="472" y1="90"  x2="618" y2="200"/>
+        <line x1="472" y1="160" x2="618" y2="120"/><line x1="472" y1="160" x2="618" y2="200"/>
+        <line x1="472" y1="230" x2="618" y2="120"/><line x1="472" y1="230" x2="618" y2="200"/>
+      </g>
+      <g>
+        <circle cx="102" cy="80"  r="20" fill="rgba(0,229,255,0.12)" stroke="#00e5ff" stroke-width="2"/>
+        <text x="102" y="84" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#00e5ff">x₁</text>
+        <circle cx="102" cy="140" r="20" fill="rgba(0,229,255,0.12)" stroke="#00e5ff" stroke-width="2"/>
+        <text x="102" y="144" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#00e5ff">x₂</text>
+        <circle cx="102" cy="200" r="20" fill="rgba(0,229,255,0.12)" stroke="#00e5ff" stroke-width="2"/>
+        <text x="102" y="204" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#00e5ff">x₃</text>
+      </g>
+      <g>
+        <circle cx="270" cy="75"  r="22" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="270" y="79" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#a78bfa">h₁</text>
+        <circle cx="270" cy="135" r="22" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="270" y="139" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#a78bfa">h₂</text>
+        <circle cx="270" cy="195" r="22" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="270" y="199" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#a78bfa">h₃</text>
+        <circle cx="270" cy="255" r="22" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="270" y="259" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#a78bfa">h₄</text>
+      </g>
+      <g>
+        <circle cx="450" cy="90"  r="22" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="450" y="94" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#a78bfa">h₅</text>
+        <circle cx="450" cy="160" r="22" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="450" y="164" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#a78bfa">h₆</text>
+        <circle cx="450" cy="230" r="22" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="450" y="234" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#a78bfa">h₇</text>
+      </g>
+      <g>
+        <circle cx="640" cy="120" r="22" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="2"/>
+        <text x="640" y="124" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#34d399">ŷ₁</text>
+        <circle cx="640" cy="200" r="22" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="2"/>
+        <text x="640" y="204" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#34d399">ŷ₂</text>
+      </g>
+      <text x="186" y="52" text-anchor="middle" font-family="Space Mono" font-size="7.5" fill="rgba(0,229,255,0.5)">weighted</text>
+      <text x="186" y="62" text-anchor="middle" font-family="Space Mono" font-size="7.5" fill="rgba(0,229,255,0.5)">inputs</text>
+      <text x="360" y="52" text-anchor="middle" font-family="Space Mono" font-size="7.5" fill="rgba(167,139,250,0.5)">activation</text>
+      <text x="360" y="62" text-anchor="middle" font-family="Space Mono" font-size="7.5" fill="rgba(167,139,250,0.5)">fn</text>
+      <text x="548" y="52" text-anchor="middle" font-family="Space Mono" font-size="7.5" fill="rgba(52,211,153,0.5)">predictions</text>
+    </svg>
+    <p style="text-align:center;color:#a8a8b8;font-size:0.82rem;margin-top:1.5rem;letter-spacing:0.04em;line-height:1.7;">
+      Data enters at the <span style="color:var(--accent)">input layer</span>, is transformed through
+      <span style="color:var(--accent3)">hidden layers</span>, and exits as predictions at the
+      <span style="color:var(--accent4)">output layer</span>
+    </p>
+  </div>
+</section>
+
+<div class="full-bg">
+<section>
+  <div class="section-label">02 — Data Flow</div>
+  <h2 class="section-title">The Learning Cycle</h2>
+  <div class="flow-section">
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-icon" style="background:rgba(0,229,255,0.12);border:1px solid rgba(0,229,255,0.3);">📥</div>
+        <div class="flow-step-title" style="color:var(--accent)">INPUT</div>
+        <div class="flow-step-desc">Raw data enters the network (pixels, numbers, text tokens)</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);">⚖️</div>
+        <div class="flow-step-title" style="color:var(--accent3)">WEIGHTS</div>
+        <div class="flow-step-desc">Each signal is multiplied by a learned weight value</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon" style="background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);">⚡</div>
+        <div class="flow-step-title" style="color:var(--accent2)">ACTIVATE</div>
+        <div class="flow-step-desc">Activation function decides whether the neuron fires</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);">🎯</div>
+        <div class="flow-step-title" style="color:var(--accent4)">OUTPUT</div>
+        <div class="flow-step-desc">Final prediction is produced and compared to the truth</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);">📉</div>
+        <div class="flow-step-title" style="color:#fbbf24">LOSS</div>
+        <div class="flow-step-desc">Error is calculated between prediction and true label</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon" style="background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.3);">🔄</div>
+        <div class="flow-step-title" style="color:#f472b6">OPTIMIZE</div>
+        <div class="flow-step-desc">Weights are updated via backpropagation to reduce error</div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<section>
+  <div class="section-label">03 — Components</div>
+  <h2 class="section-title">Six Core Components<br>Explained</h2>
+  <div class="cards-grid">
+    <div class="card c1">
+      <div class="card-num">COMPONENT 01</div>
+      <div class="card-title">Layers</div>
+      <p>A neural network is organized into sequential <strong>layers</strong> — groups of neurons that process information at the same depth. The <strong>input layer</strong> receives raw data, <strong>hidden layers</strong> extract increasingly abstract features, and the <strong>output layer</strong> produces the final prediction.</p>
+      <p>Adding more layers increases a network's ability to learn complex patterns — this is the foundation of "deep" learning.</p>
+      <div class="formula-box">Input Layer → [Hidden Layers] → Output Layer</div>
+      <span class="card-tag">STRUCTURE</span>
+    </div>
+    <div class="card c2">
+      <div class="card-num">COMPONENT 02</div>
+      <div class="card-title">Neurons</div>
+      <p>A <strong>neuron</strong> (or node) is the fundamental unit of computation. Each neuron receives inputs, applies weights and a bias, sums the result, then passes it through an activation function. It mimics how biological neurons fire when a signal crosses a threshold.</p>
+      <p>More neurons per layer = more capacity to represent complex patterns, but also more risk of overfitting.</p>
+      <div class="formula-box">output = activation(Σ(wᵢ · xᵢ) + b)</div>
+      <span class="card-tag">COMPUTATION</span>
+    </div>
+    <div class="card c3">
+      <div class="card-num">COMPONENT 03</div>
+      <div class="card-title">Weights</div>
+      <p><strong>Weights</strong> are the learnable parameters of a neural network — numerical values that determine how strongly one neuron's output influences the next. Initially set randomly, they are continuously updated during training.</p>
+      <p>A high positive weight amplifies a signal; a negative weight inhibits it. Training is essentially the process of finding the best possible weights.</p>
+      <div class="formula-box">w ← w − α · ∂L/∂w  (gradient update)</div>
+      <span class="card-tag">LEARNING</span>
+    </div>
+    <div class="card c4">
+      <div class="card-num">COMPONENT 04</div>
+      <div class="card-title">Activation Functions</div>
+      <p><strong>Activation functions</strong> introduce non-linearity, enabling the network to learn complex, non-linear relationships. Without them, a deep network would behave like a single linear function, no matter how many layers it has.</p>
+      <p>Different activations suit different tasks: ReLU is fast and common for hidden layers; Sigmoid/Softmax are used in output layers for classification.</p>
+      <div class="activation-demo">
+        <span class="act-pill" style="background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.3)">ReLU</span>
+        <span class="act-pill" style="background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.3)">Sigmoid</span>
+        <span class="act-pill" style="background:rgba(0,229,255,0.12);color:var(--accent);border:1px solid rgba(0,229,255,0.3)">Tanh</span>
+        <span class="act-pill" style="background:rgba(244,114,182,0.12);color:#f472b6;border:1px solid rgba(244,114,182,0.3)">Softmax</span>
+      </div>
+      <span class="card-tag" style="margin-top:0.75rem;display:inline-block">NON-LINEARITY</span>
+    </div>
+    <div class="card c5">
+      <div class="card-num">COMPONENT 05</div>
+      <div class="card-title">Loss Functions</div>
+      <p>The <strong>loss function</strong> (or cost function) measures how wrong the model's predictions are compared to the true labels. It returns a single number: a lower loss means better performance.</p>
+      <p>Common choices: <strong>Mean Squared Error (MSE)</strong> for regression tasks; <strong>Cross-Entropy Loss</strong> for classification. The loss is the signal that drives all learning.</p>
+      <div class="formula-box">MSE = (1/n) · Σ(yᵢ − ŷᵢ)²</div>
+      <span class="card-tag">ERROR SIGNAL</span>
+    </div>
+    <div class="card c6">
+      <div class="card-num">COMPONENT 06</div>
+      <div class="card-title">Optimization Algorithms</div>
+      <p><strong>Optimizers</strong> use the loss signal to update weights via <em>backpropagation</em> and <em>gradient descent</em>. The learning rate controls how large each update step is — too large and training is unstable; too small and it converges slowly.</p>
+      <p>Modern optimizers like <strong>Adam</strong> adapt the learning rate per parameter, combining the benefits of momentum and RMSProp for faster, more stable training.</p>
+      <div class="activation-demo">
+        <span class="act-pill" style="background:rgba(244,114,182,0.12);color:#f472b6;border:1px solid rgba(244,114,182,0.3)">SGD</span>
+        <span class="act-pill" style="background:rgba(167,139,250,0.12);color:#a78bfa;border:1px solid rgba(167,139,250,0.3)">Adam</span>
+        <span class="act-pill" style="background:rgba(0,229,255,0.12);color:var(--accent);border:1px solid rgba(0,229,255,0.3)">RMSProp</span>
+      </div>
+      <span class="card-tag" style="margin-top:0.75rem;display:inline-block">WEIGHT UPDATE</span>
+    </div>
+  </div>
+</section>
+
+<div class="full-bg">
+<section>
+  <div class="summary-section">
+    <div class="section-label" style="text-align:center">04 — Summary</div>
+    <h2>Why Visualizing<br><span>Neural Networks</span> Matters</h2>
+    <p>Neural networks are often treated as opaque "black boxes." Visualizing their architecture — layers, weights, activations, and learning curves — transforms them from mysterious functions into understandable systems. This transparency is essential for debugging, improving, and trusting AI models.</p>
+    <p>Hands-on experimentation with the Neural Network Playground reinforced how each component interacts: more hidden layers capture richer patterns, while noisy data demands regularization, and the choice of activation function can make or break convergence.</p>
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="icon">🧠</div>
+        <h4>Depth = Capacity</h4>
+        <p>More layers allow the network to learn hierarchical, abstract representations of data.</p>
+      </div>
+      <div class="insight-card">
+        <div class="icon">⚖️</div>
+        <h4>Weights Encode Knowledge</h4>
+        <p>All that a trained network "knows" lives in its weight values — learned through gradient descent.</p>
+      </div>
+      <div class="insight-card">
+        <div class="icon">📉</div>
+        <h4>Loss Guides Learning</h4>
+        <p>Without a clear error signal, a network cannot improve. Loss functions are the compass of training.</p>
+      </div>
+      <div class="insight-card">
+        <div class="icon">🔄</div>
+        <h4>Iteration Is Everything</h4>
+        <p>Training is a repeated cycle of predict → measure → adjust. Hundreds of thousands of times.</p>
+      </div>
+      <div class="insight-card">
+        <div class="icon">⚡</div>
+        <h4>Activation Unlocks Complexity</h4>
+        <p>Without non-linear activations, even a 100-layer network collapses to a single linear function.</p>
+      </div>
+      <div class="insight-card">
+        <div class="icon">🎯</div>
+        <h4>Architecture Choices Matter</h4>
+        <p>Selecting the right number of layers, neurons, and activation functions significantly impacts performance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <p style="margin-bottom:0.5rem">Neural Networks: A Visual Guide &nbsp;·&nbsp; Portfolio Artifact</p>
+  <p style="color:rgba(107,107,128,0.5);font-size:0.65rem">Created with Neural Network Playground experimentation &nbsp;·&nbsp; 2026</p>
+</footer>
+
+</body>
+</html>
