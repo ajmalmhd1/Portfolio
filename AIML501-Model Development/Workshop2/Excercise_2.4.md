@@ -22,10 +22,11 @@ The project was informed by hands-on experimentation using the Neural Network Pl
 
 Tools & Technologies
 
-HTML5 / CSS3 / SVG — Structure, styling, and diagrams
+HTML5 / CSS3 / SVG — Structure, styling, and diagrams  
 Google Fonts — Space Mono + Fraunces typefaces
 Neural Network Playground — Hands-on experimentation
 GitHub Pages — Free static site hosting
 
 Reflection
-Working through this assignment deepened my understanding of how neural network components are interconnected rather than isolated concepts. Using the Neural Network Playground made abstract ideas like loss curves and weight convergence tangible — I could see in real time how adding hidden layers improved performance on spiral data, while too many neurons on simple linear data caused overfitting. Creating the visual presentation challenged me to translate technical definitions into clear, concise explanations. The most valuable insight was recognizing that training a neural network is not magic — it is a structured cycle of prediction, error measurement, and weight adjustment, repeated thousands of times until the model learns.
+
+Working through this assignment deepened my understanding of how neural network components are interconnected rather than isolated concepts. Using the Neural Network Playground made abstract ideas like loss curves and weight convergence tangible. I could see in real time how adding hidden layers improved performance on spiral data, while too many neurons on simple linear data caused overfitting. Creating the visual presentation challenged me to translate technical definitions into clear, concise explanations. The most valuable insight was recognizing that training a neural network is not magic it is a structured cycle of prediction, error measurement, and weight adjustment, repeated thousands of times until the model learns.
