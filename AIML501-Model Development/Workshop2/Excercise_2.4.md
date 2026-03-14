@@ -5,8 +5,10 @@ Project Overview
 This project is a visual presentation built as a portfolio artifact for a course assignment on neural networks. The goal was to explore, understand, and clearly communicate the core components of a neural network through diagrams, flowcharts, and concise explanations all presented in a single, professionally designed interactive HTML page.
 The project was informed by hands-on experimentation using the Neural Network Playground, where different data types, noise levels, hidden layers, and neuron configurations were tested to observe their impact on model training and performance.
 
+
  Live Portfolio Link
  https://ajmalmhd1.github.io/Portfolio/neural_network_presentation.html
+ 
 
  Neural Network Components Covered
  
@@ -20,6 +22,7 @@ The project was informed by hands-on experimentation using the Neural Network Pl
 | 6 | **Optimization Algorithms** | Update weights to **minimize loss** (examples: SGD, Adam, RMSProp)               |
 
 
+
 Tools & Technologies
 
 HTML5 / CSS3 / SVG — Structure, styling, and diagrams  
@@ -29,6 +32,7 @@ Google Fonts — Space Mono + Fraunces typefaces
 Neural Network Playground — Hands-on experimentation
 
 GitHub Pages — Free static site hosting
+
 
 Reflection
 
