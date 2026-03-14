@@ -23,8 +23,11 @@ The project was informed by hands-on experimentation using the Neural Network Pl
 Tools & Technologies
 
 HTML5 / CSS3 / SVG — Structure, styling, and diagrams  
+
 Google Fonts — Space Mono + Fraunces typefaces
+
 Neural Network Playground — Hands-on experimentation
+
 GitHub Pages — Free static site hosting
 
 Reflection
