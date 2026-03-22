@@ -54,7 +54,7 @@ One of the most important insights surfaced by this infographic is that GPU/TPU 
 
 3.3 Efficiency as a Competitive Dimension
 
-The comparison between GPT-4 (~1.8T parameters est.) and LLaMA 3 405B (405B parameters, open source) illustrates that raw parameter count is not the primary quality differentiator—training data quality, RLHF, and post-training techniques matter enormously. Smaller, well-trained models (Mistral 7B) can exceed much larger models on specific tasks.
+The comparison between GPT-4 (~1.8T parameters est.) and LLaMA 3 405B (405B parameters, open source) illustrates that raw parameter count is not the primary quality differentiator training data quality, RLHF, and post-training techniques matter enormously. Smaller, well-trained models (Mistral 7B) can exceed much larger models on specific tasks.
 
 3.4 Environmental Significance
 
