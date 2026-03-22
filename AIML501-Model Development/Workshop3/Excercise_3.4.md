@@ -1,4 +1,4 @@
 
 Training Generative AI Large Language Models
 
-Process, Infrastructure & Resource Costs
+ Process, Infrastructure & Resource Costs
