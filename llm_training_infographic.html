@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Generative AI LLMs: Process & Resource Costs</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --surface: #0e1628;
+    --surface2: #111827;
+    --border: rgba(255,255,255,0.13);
+    --accent1: #00e5ff;
+    --accent2: #ff7a4a;
+    --accent3: #b97aff;
+    --accent4: #00ff9d;
+    --text: #f0f2f8;
+    --muted: #b0b8cc;
+    --gold: #f5c842;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND GRID ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px 80px;
+  }
+
+  /* ── HERO HEADER ── */
+  .hero {
+    text-align: center;
+    margin-bottom: 64px;
+    position: relative;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent1);
+    border: 1px solid rgba(0,229,255,0.4);
+    padding: 7px 18px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 8vw, 92px);
+    letter-spacing: 2px;
+    line-height: 0.95;
+    background: linear-gradient(135deg, #fff 0%, var(--accent1) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 600px;
+    margin: 0 auto 32px;
+    line-height: 1.8;
+  }
+  .model-badges {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+  .badge.gpt  { background: rgba(116,200,100,0.12); color:#74c864; border:1px solid rgba(116,200,100,0.25); }
+  .badge.claude { background: rgba(162,89,255,0.12); color:#a259ff; border:1px solid rgba(162,89,255,0.3); }
+  .badge.gemini { background: rgba(66,165,245,0.12); color:#42a5f5; border:1px solid rgba(66,165,245,0.25); }
+  .badge.llama  { background: rgba(255,107,53,0.12); color:#ff6b35; border:1px solid rgba(255,107,53,0.25); }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── TRAINING PIPELINE ── */
+  .pipeline {
+    margin-bottom: 72px;
+  }
+  .pipeline-steps {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    position: relative;
+  }
+  .pipeline-steps::before {
+    content: '';
+    position: absolute;
+    top: 36px;
+    left: calc(100%/12);
+    right: calc(100%/12);
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent3), var(--accent2));
+    z-index: 0;
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 8px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.6s ease both;
+  }
+  .step:nth-child(1) { animation-delay: 0.1s; }
+  .step:nth-child(2) { animation-delay: 0.2s; }
+  .step:nth-child(3) { animation-delay: 0.3s; }
+  .step:nth-child(4) { animation-delay: 0.4s; }
+  .step:nth-child(5) { animation-delay: 0.5s; }
+  .step:nth-child(6) { animation-delay: 0.6s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-num {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    margin-bottom: 14px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .step-num::after {
+    content: '';
+    position: absolute; inset: -3px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: var(--ring) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+  }
+  .s1 .step-num { background: rgba(0,229,255,0.1); color: var(--accent1); --ring: linear-gradient(135deg, var(--accent1), transparent); }
+  .s2 .step-num { background: rgba(162,89,255,0.1); color: var(--accent3); --ring: linear-gradient(135deg, var(--accent3), transparent); }
+  .s3 .step-num { background: rgba(245,200,66,0.1); color: var(--gold); --ring: linear-gradient(135deg, var(--gold), transparent); }
+  .s4 .step-num { background: rgba(0,255,157,0.1); color: var(--accent4); --ring: linear-gradient(135deg, var(--accent4), transparent); }
+  .s5 .step-num { background: rgba(255,107,53,0.1); color: var(--accent2); --ring: linear-gradient(135deg, var(--accent2), transparent); }
+  .s6 .step-num { background: rgba(66,165,245,0.1); color: #42a5f5; --ring: linear-gradient(135deg, #42a5f5, transparent); }
+
+  .step-title {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── RESOURCE CARDS GRID ── */
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 72px;
+  }
+  .res-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .res-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--card-accent);
+  }
+  .res-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-accent);
+  }
+  .res-card.data    { --card-accent: var(--accent1); }
+  .res-card.compute { --card-accent: var(--accent3); }
+  .res-card.energy  { --card-accent: var(--gold); }
+  .res-card.time    { --card-accent: var(--accent2); }
+
+  .res-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+  .res-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 1px;
+    color: var(--card-accent);
+    margin-bottom: 10px;
+  }
+  .res-desc {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+  .res-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .stat-label { color: var(--muted); flex: 0 0 110px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+  .stat-bar-wrap { flex: 1; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .stat-bar { height: 100%; border-radius: 4px; background: var(--card-accent); opacity: 0.85; transition: width 1s ease; }
+  .stat-val { color: var(--text); font-weight: 700; font-size: 13px; flex: 0 0 64px; text-align: right; font-family: 'DM Mono', monospace; }
+
+  /* ── MODEL COMPARISON TABLE ── */
+  .comparison {
+    margin-bottom: 72px;
+  }
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  .comp-table thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+  .comp-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .comp-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .comp-table tbody td {
+    padding: 18px 16px;
+    vertical-align: middle;
+  }
+  .model-name {
+    font-weight: 700;
+    font-size: 16px;
+    display: block;
+  }
+  .model-org {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .pill {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .cost-high   { background: rgba(255,107,53,0.12); color: #ff6b35; }
+  .cost-mid    { background: rgba(245,200,66,0.12); color: var(--gold); }
+  .cost-low    { background: rgba(0,255,157,0.12); color: var(--accent4); }
+  .cost-unk    { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+  .params-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mini-bar-wrap { width: 80px; height: 7px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .mini-bar { height: 100%; border-radius: 4px; }
+  .c-gpt    { background: #74c864; }
+  .c-claude { background: var(--accent3); }
+  .c-gemini { background: #42a5f5; }
+  .c-llama  { background: var(--accent2); }
+  .c-grok   { background: var(--gold); }
+  .c-mistral{ background: var(--accent1); }
+
+  /* ── COST BREAKDOWN ── */
+  .cost-breakdown {
+    margin-bottom: 72px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .donut-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .donut-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+    align-self: flex-start;
+  }
+  svg.donut { overflow: visible; }
+  .donut-legend {
+    margin-top: 24px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 15px;
+  }
+  .legend-dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  .legend-name { flex: 1; color: var(--text); display: flex; align-items: center; }
+  .legend-pct  { color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; }
+
+  .scaling-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+  }
+  .scaling-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .scaling-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .scale-item {}
+  .scale-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .scale-name { color: var(--text); font-weight: 600; }
+  .scale-val  { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; }
+  .scale-bar-wrap {
+    height: 10px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .scale-fill {
+    height: 100%;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .scale-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* ── PHASE DETAIL ── */
+  .phases {
+    margin-bottom: 72px;
+  }
+  .phases-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 22px;
+    transition: border-color 0.2s;
+  }
+  .phase-card:hover { border-color: rgba(255,255,255,0.15); }
+  .phase-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    opacity: 0.18;
+    margin-bottom: 10px;
+    color: var(--phase-color);
+  }
+  .phase-name {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.2px;
+    margin-bottom: 10px;
+    color: var(--phase-color);
+  }
+  .phase-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+  .phase-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  /* ── KEY INSIGHTS ── */
+  .insights {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 64px;
+  }
+  .insight {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    text-align: center;
+  }
+  .insight-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px;
+    color: var(--ins-color);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .insight-label {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+  }
+  .footer-note {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 560px;
+  }
+  .footer-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.2);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* Print / export */
+  @media print {
+    body { background: white; color: #111; }
+    .page { padding: 30px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-tag">AI Infrastructure Series</div>
+    <h1>Training Generative AI<br>Large Language Models</h1>
+    <p class="hero-sub">A visual guide to the training pipeline, resource requirements, and infrastructure costs for today's most prominent foundation models.</p>
+    <div class="model-badges">
+      <span class="badge gpt">GPT-4 · OpenAI</span>
+      <span class="badge claude">Claude · Anthropic</span>
+      <span class="badge gemini">Gemini · Google</span>
+      <span class="badge llama">LLaMA · Meta</span>
+    </div>
+  </header>
+
+  <!-- TRAINING PIPELINE -->
+  <section class="pipeline">
+    <div class="section-label">01 — The Training Pipeline</div>
+    <div class="pipeline-steps">
+      <div class="step s1">
+        <div class="step-num">01</div>
+        <div class="step-title">Data Collection</div>
+        <div class="step-desc">Web crawls, books, code repos, licensed data—trillions of tokens gathered and sourced</div>
+      </div>
+      <div class="step s2">
+        <div class="step-num">02</div>
+        <div class="step-title">Data Curation</div>
+        <div class="step-desc">Deduplication, quality filtering, PII removal, harmful content scrubbing</div>
+      </div>
+      <div class="step s3">
+        <div class="step-num">03</div>
+        <div class="step-title">Tokenization</div>
+        <div class="step-desc">Text converted to tokens via BPE or SentencePiece; vocabulary of 32K–100K tokens built</div>
+      </div>
+      <div class="step s4">
+        <div class="step-num">04</div>
+        <div class="step-title">Pre-Training</div>
+        <div class="step-desc">Next-token prediction on massive corpus; billions of GPU hours; core world knowledge acquired</div>
+      </div>
+      <div class="step s5">
+        <div class="step-num">05</div>
+        <div class="step-title">Fine-Tuning / RLHF</div>
+        <div class="step-desc">Supervised fine-tuning + RLHF or Constitutional AI aligns outputs with human preferences</div>
+      </div>
+      <div class="step s6">
+        <div class="step-num">06</div>
+        <div class="step-title">Evaluation & Deploy</div>
+        <div class="step-desc">Safety evals, benchmarks (MMLU, HumanEval), red-teaming, then API/product deployment</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESOURCE CARDS -->
+  <section>
+    <div class="section-label">02 — Primary Resource Categories</div>
+    <div class="resources-grid">
+
+      <!-- DATA -->
+      <div class="res-card data">
+        <div class="res-icon">🗄️</div>
+        <div class="res-title">Training Data</div>
+        <div class="res-desc">Modern frontier models consume trillions of tokens scraped from the public internet, digitized books, scientific papers, code repositories, and curated licensed datasets. Data quality is as critical as quantity—garbage in, garbage out applies at civilizational scale.</div>
+        <div class="res-stats">
+          <div class="stat-row">
+            <span class="stat-label">GPT-4</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:95%"></div></div>
+            <span class="stat-val">~13T tok</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">LLaMA 3</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:92%"></div></div>
+            <span class="stat-val">15T tok</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Gemini Ultra</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:80%"></div></div>
+            <span class="stat-val">~10T tok</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Claude 3</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:70%"></div></div>
+            <span class="stat-val">~8T tok</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPUTE -->
+      <div class="res-card compute">
+        <div class="res-icon">⚡</div>
+        <div class="res-title">Compute Power</div>
+        <div class="res-desc">Training runs span tens of thousands of NVIDIA A100 or H100 GPUs networked over InfiniBand fabrics. A single frontier training run can consume millions of GPU-hours—equivalent to thousands of years on a single consumer GPU. Model parallelism and mixed precision are essential.</div>
+        <div class="res-stats">
+          <div class="stat-row">
+            <span class="stat-label">GPT-4</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:100%"></div></div>
+            <span class="stat-val">~25K A100s</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Gemini Ultra</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:88%"></div></div>
+            <span class="stat-val">~16K TPU v4</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">LLaMA 3 70B</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:60%"></div></div>
+            <span class="stat-val">~6K H100s</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Mistral 7B</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:18%"></div></div>
+            <span class="stat-val">~512 GPUs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENERGY -->
+      <div class="res-card energy">
+        <div class="res-icon">🔋</div>
+        <div class="res-title">Energy Consumption</div>
+        <div class="res-desc">Energy costs can dominate operational budgets. GPT-4's training is estimated to have consumed over 50 GWh—enough to power thousands of homes for a year. Efficient cooling, data center PUE, and renewable sourcing are critical sustainability considerations for AI labs.</div>
+        <div class="res-stats">
+          <div class="stat-row">
+            <span class="stat-label">GPT-4</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:100%"></div></div>
+            <span class="stat-val">~50+ GWh</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Gemini Ultra</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:80%"></div></div>
+            <span class="stat-val">~40 GWh</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">LLaMA 3 70B</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:40%"></div></div>
+            <span class="stat-val">~20 GWh</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">GPT-3.5</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:22%"></div></div>
+            <span class="stat-val">~1.3 GWh</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIME -->
+      <div class="res-card time">
+        <div class="res-icon">⏱️</div>
+        <div class="res-title">Time to Train</div>
+        <div class="res-desc">Even with massive GPU clusters, training frontier models takes months of wall-clock time. LLaMA 3 405B required 54 days on 16K H100s at full capacity. Iteration cycles for alignment and fine-tuning add weeks. Fast hardware and low failure rates are operationally essential.</div>
+        <div class="res-stats">
+          <div class="stat-row">
+            <span class="stat-label">GPT-4</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:100%"></div></div>
+            <span class="stat-val">~100 days</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">LLaMA 3 405B</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:54%"></div></div>
+            <span class="stat-val">54 days</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">LLaMA 3 70B</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:35%"></div></div>
+            <span class="stat-val">~35 days</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Mistral 7B</span>
+            <div class="stat-bar-wrap"><div class="stat-bar" style="width:10%"></div></div>
+            <span class="stat-val">~10 days</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODEL COMPARISON TABLE -->
+  <section class="comparison">
+    <div class="section-label">03 — Model Comparison at a Glance</div>
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Parameters</th>
+          <th>Training Tokens</th>
+          <th>Est. Compute Cost</th>
+          <th>Release</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <span class="model-name" style="color:#74c864">GPT-4</span>
+            <span class="model-org">OpenAI</span>
+          </td>
+          <td>
+            <div class="params-bar">
+              <div class="mini-bar-wrap"><div class="mini-bar c-gpt" style="width:100%"></div></div>
+              <span style="font-size:14px;color:var(--muted)">~1.8T (MoE est.)</span>
+            </div>
+          </td>
+          <td style="font-family:'DM Mono',monospace;font-size:14px">~13T</td>
+          <td><span class="pill cost-high">$50–100M+</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)">Mar 2023</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="model-name" style="color:#a259ff">Claude 3 Opus</span>
+            <span class="model-org">Anthropic</span>
+          </td>
+          <td>
+            <div class="params-bar">
+              <div class="mini-bar-wrap"><div class="mini-bar c-claude" style="width:85%"></div></div>
+              <span style="font-size:14px;color:var(--muted)">Undisclosed</span>
+            </div>
+          </td>
+          <td style="font-family:'DM Mono',monospace;font-size:14px">Undisclosed</td>
+          <td><span class="pill cost-high">$50–100M+</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)">Mar 2024</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="model-name" style="color:#42a5f5">Gemini Ultra 1.0</span>
+            <span class="model-org">Google DeepMind</span>
+          </td>
+          <td>
+            <div class="params-bar">
+              <div class="mini-bar-wrap"><div class="mini-bar c-gemini" style="width:90%"></div></div>
+              <span style="font-size:14px;color:var(--muted)">Undisclosed</span>
+            </div>
+          </td>
+          <td style="font-family:'DM Mono',monospace;font-size:14px">~10T</td>
+          <td><span class="pill cost-high">$100M+</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)">Feb 2024</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="model-name" style="color:#ff6b35">LLaMA 3 405B</span>
+            <span class="model-org">Meta AI</span>
+          </td>
+          <td>
+            <div class="params-bar">
+              <div class="mini-bar-wrap"><div class="mini-bar c-llama" style="width:70%"></div></div>
+              <span style="font-size:14px;color:var(--muted)">405B</span>
+            </div>
+          </td>
+          <td style="font-family:'DM Mono',monospace;font-size:14px">15.6T</td>
+          <td><span class="pill cost-mid">$25–50M</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)">Jul 2024</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="model-name" style="color:var(--gold)">Grok-1</span>
+            <span class="model-org">xAI</span>
+          </td>
+          <td>
+            <div class="params-bar">
+              <div class="mini-bar-wrap"><div class="mini-bar c-grok" style="width:47%"></div></div>
+              <span style="font-size:14px;color:var(--muted)">314B (MoE)</span>
+            </div>
+          </td>
+          <td style="font-family:'DM Mono',monospace;font-size:14px">Undisclosed</td>
+          <td><span class="pill cost-mid">$10–30M</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)">Nov 2023</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="model-name" style="color:var(--accent1)">Mistral 7B</span>
+            <span class="model-org">Mistral AI</span>
+          </td>
+          <td>
+            <div class="params-bar">
+              <div class="mini-bar-wrap"><div class="mini-bar c-mistral" style="width:8%"></div></div>
+              <span style="font-size:14px;color:var(--muted)">7.3B</span>
+            </div>
+          </td>
+          <td style="font-family:'DM Mono',monospace;font-size:14px">~1T</td>
+          <td><span class="pill cost-low">&lt;$1M</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)">Sep 2023</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- COST BREAKDOWN + SCALING LAWS -->
+  <section>
+    <div class="section-label">04 — Cost Breakdown &amp; Scaling Laws</div>
+    <div class="cost-breakdown">
+
+      <!-- DONUT: cost pie -->
+      <div class="donut-wrap">
+        <div class="donut-title">Approx. Training Cost Breakdown</div>
+        <svg class="donut" width="180" height="180" viewBox="0 0 180 180">
+          <!-- GPT-4 est. ~$100M total. Segments: Compute 65%, Energy 15%, Data 12%, Talent 8% -->
+          <!-- cx=90 cy=90 r=70, circumference=439.8, stroke-dasharray=pct*4.398 439.8 -->
+          <!-- order: compute, energy, data, talent -->
+          <circle r="60" cx="90" cy="90" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="28"/>
+          <!-- Compute 65% → 285.9 -->
+          <circle r="60" cx="90" cy="90" fill="none" stroke="var(--accent3)" stroke-width="28"
+            stroke-dasharray="245.0 376.9" stroke-dashoffset="94.2"
+            transform="rotate(-90 90 90)" opacity="0.85"/>
+          <!-- Energy 15% → 56.5 -->
+          <circle r="60" cx="90" cy="90" fill="none" stroke="var(--gold)" stroke-width="28"
+            stroke-dasharray="56.5 320.4" stroke-dashoffset="-150.8"
+            transform="rotate(-90 90 90)" opacity="0.85"/>
+          <!-- Data 12% --> 
+          <circle r="60" cx="90" cy="90" fill="none" stroke="var(--accent1)" stroke-width="28"
+            stroke-dasharray="45.2 331.7" stroke-dashoffset="-207.3"
+            transform="rotate(-90 90 90)" opacity="0.85"/>
+          <!-- Talent/Other 8% -->
+          <circle r="60" cx="90" cy="90" fill="none" stroke="var(--accent2)" stroke-width="28"
+            stroke-dasharray="30.2 346.7" stroke-dashoffset="-252.5"
+            transform="rotate(-90 90 90)" opacity="0.85"/>
+          <!-- center text -->
+          <text x="90" y="84" text-anchor="middle" fill="#fff" font-family="Bebas Neue,sans-serif" font-size="26">~$100M</text>
+          <text x="90" y="102" text-anchor="middle" fill="var(--muted)" font-family="DM Mono,monospace" font-size="9" letter-spacing="1">FRONTIER EST.</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-row">
+            <span class="legend-name"><span class="legend-dot" style="background:var(--accent3)"></span>Compute (GPUs/TPUs)</span>
+            <span class="legend-pct">65%</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-name"><span class="legend-dot" style="background:var(--gold)"></span>Energy &amp; Cooling</span>
+            <span class="legend-pct">15%</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-name"><span class="legend-dot" style="background:var(--accent1)"></span>Data Acquisition</span>
+            <span class="legend-pct">12%</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-name"><span class="legend-dot" style="background:var(--accent2)"></span>Talent &amp; Other</span>
+            <span class="legend-pct">8%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCALING LAWS -->
+      <div class="scaling-card">
+        <div class="scaling-title">Chinchilla Scaling Laws — Optimal Resource Allocation</div>
+        <div class="scaling-items">
+          <div class="scale-item">
+            <div class="scale-header">
+              <span class="scale-name">GPT-4 (est. 1.8T params)</span>
+              <span class="scale-val">~$50–100M</span>
+            </div>
+            <div class="scale-bar-wrap">
+              <div class="scale-fill" style="width:100%;background:linear-gradient(90deg,#a259ff,#42a5f5)"></div>
+            </div>
+          </div>
+          <div class="scale-item">
+            <div class="scale-header">
+              <span class="scale-name">Gemini Ultra (Undisclosed)</span>
+              <span class="scale-val">~$100M+</span>
+            </div>
+            <div class="scale-bar-wrap">
+              <div class="scale-fill" style="width:95%;background:linear-gradient(90deg,#42a5f5,#00e5ff)"></div>
+            </div>
+          </div>
+          <div class="scale-item">
+            <div class="scale-header">
+              <span class="scale-name">LLaMA 3 405B (405B params)</span>
+              <span class="scale-val">~$30M</span>
+            </div>
+            <div class="scale-bar-wrap">
+              <div class="scale-fill" style="width:60%;background:linear-gradient(90deg,#ff6b35,#f5c842)"></div>
+            </div>
+          </div>
+          <div class="scale-item">
+            <div class="scale-header">
+              <span class="scale-name">LLaMA 3 70B (70B params)</span>
+              <span class="scale-val">~$5M</span>
+            </div>
+            <div class="scale-bar-wrap">
+              <div class="scale-fill" style="width:30%;background:linear-gradient(90deg,#ff6b35,#a259ff)"></div>
+            </div>
+          </div>
+          <div class="scale-item">
+            <div class="scale-header">
+              <span class="scale-name">Mistral 7B (7B params)</span>
+              <span class="scale-val">&lt;$1M</span>
+            </div>
+            <div class="scale-bar-wrap">
+              <div class="scale-fill" style="width:8%;background:linear-gradient(90deg,#00e5ff,#00ff9d)"></div>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top:20px;font-size:14px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);padding-top:16px;">
+          <strong style="color:var(--text)">Chinchilla Scaling (2022):</strong> DeepMind found models are often undertrained—optimal performance requires roughly <em>20 tokens per parameter</em>. A 70B model should train on ~1.4T tokens. LLaMA 3 trains well beyond this (15T tokens), intentionally over-training for inference efficiency.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRAINING PHASES DEEP DIVE -->
+  <section class="phases">
+    <div class="section-label">05 — Training Phases Deep Dive</div>
+    <div class="phases-grid">
+      <div class="phase-card" style="--phase-color:var(--accent1)">
+        <div class="phase-num">01</div>
+        <div class="phase-name">Pre-Training</div>
+        <div class="phase-desc">The compute-intensive phase: the model learns language structure, world knowledge, and reasoning patterns by predicting the next token across a massive corpus. This is where 90%+ of compute is spent.</div>
+        <div class="phase-tags">
+          <span class="tag">Causal LM</span>
+          <span class="tag">BFloat16</span>
+          <span class="tag">AdamW</span>
+          <span class="tag">Flash Attention</span>
+          <span class="tag">Tensor Parallel</span>
+        </div>
+      </div>
+      <div class="phase-card" style="--phase-color:var(--accent3)">
+        <div class="phase-num">02</div>
+        <div class="phase-name">Supervised Fine-Tuning</div>
+        <div class="phase-desc">Human-curated instruction-response pairs are used to teach the model to follow instructions and produce helpful, structured outputs. Typically 100K–1M high-quality examples. Much less compute than pre-training.</div>
+        <div class="phase-tags">
+          <span class="tag">Instruction Tuning</span>
+          <span class="tag">Chat Templates</span>
+          <span class="tag">Low LR</span>
+          <span class="tag">Human Labels</span>
+        </div>
+      </div>
+      <div class="phase-card" style="--phase-color:var(--gold)">
+        <div class="phase-num">03</div>
+        <div class="phase-name">RLHF / Constitutional AI</div>
+        <div class="phase-desc">Reinforcement Learning from Human Feedback (OpenAI/Google) or Constitutional AI (Anthropic) fine-tune values, helpfulness, and safety. A reward model is trained on human preference data, then PPO or GRPO optimizes policy.</div>
+        <div class="phase-tags">
+          <span class="tag">PPO / GRPO</span>
+          <span class="tag">Reward Model</span>
+          <span class="tag">CAI</span>
+          <span class="tag">Preference Data</span>
+        </div>
+      </div>
+      <div class="phase-card" style="--phase-color:var(--accent4)">
+        <div class="phase-num">04</div>
+        <div class="phase-name">Evaluation &amp; Red-Teaming</div>
+        <div class="phase-desc">Models are tested on MMLU, HumanEval, GSM8K, BIG-Bench, and proprietary benchmarks. Red teams attempt adversarial jailbreaks. Safety evaluations for dangerous capabilities are mandatory at frontier labs.</div>
+        <div class="phase-tags">
+          <span class="tag">MMLU</span>
+          <span class="tag">HumanEval</span>
+          <span class="tag">GSM8K</span>
+          <span class="tag">Red Team</span>
+          <span class="tag">HELM</span>
+        </div>
+      </div>
+      <div class="phase-card" style="--phase-color:var(--accent2)">
+        <div class="phase-num">05</div>
+        <div class="phase-name">Inference Optimization</div>
+        <div class="phase-desc">Quantization (INT8/INT4), speculative decoding, and KV-cache optimizations reduce serving costs by 2–10×. Distillation creates smaller student models. Crucial for economic viability at scale (millions of daily users).</div>
+        <div class="phase-tags">
+          <span class="tag">Quantization</span>
+          <span class="tag">Distillation</span>
+          <span class="tag">vLLM</span>
+          <span class="tag">Spec Decoding</span>
+        </div>
+      </div>
+      <div class="phase-card" style="--phase-color:#42a5f5">
+        <div class="phase-num">06</div>
+        <div class="phase-name">Deployment &amp; Monitoring</div>
+        <div class="phase-desc">Models deploy via APIs with load balancing, rate limiting, and usage monitoring. Continuous feedback loops identify failures for future fine-tuning cycles. Model cards and system cards document capabilities and risks.</div>
+        <div class="phase-tags">
+          <span class="tag">API Gateway</span>
+          <span class="tag">A/B Testing</span>
+          <span class="tag">Model Card</span>
+          <span class="tag">Feedback Loop</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY INSIGHTS -->
+  <section>
+    <div class="section-label">06 — Key Figures</div>
+    <div class="insights">
+      <div class="insight" style="--ins-color:var(--accent1)">
+        <div class="insight-num" style="color:var(--accent1)">10,000×</div>
+        <div class="insight-label">Compute increase from GPT-2 to GPT-4 in just 5 years, following AI scaling laws</div>
+      </div>
+      <div class="insight" style="--ins-color:var(--gold)">
+        <div class="insight-num" style="color:var(--gold)">$100M+</div>
+        <div class="insight-label">Estimated cost to train a single frontier model like GPT-4 or Gemini Ultra</div>
+      </div>
+      <div class="insight" style="--ins-color:var(--accent3)">
+        <div class="insight-num" style="color:var(--accent3)">15T</div>
+        <div class="insight-label">Tokens used to train LLaMA 3—more data than previous models with fewer parameters</div>
+      </div>
+      <div class="insight" style="--ins-color:var(--accent2)">
+        <div class="insight-num" style="color:var(--accent2)">50 GWh</div>
+        <div class="insight-label">Estimated energy for GPT-4 training—equal to powering ~4,500 U.S. homes for one year</div>
+      </div>
+      <div class="insight" style="--ins-color:var(--accent4)">
+        <div class="insight-num" style="color:var(--accent4)">54 days</div>
+        <div class="insight-label">Wall-clock training time for LLaMA 3 405B on 16,000 H100 GPUs running simultaneously</div>
+      </div>
+      <div class="insight" style="--ins-color:#42a5f5">
+        <div class="insight-num" style="color:#42a5f5">20:1</div>
+        <div class="insight-label">Chinchilla ratio: optimal tokens-to-parameters—20 training tokens per model parameter</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-note">
+      <strong style="color:var(--text)">Data Sources &amp; Notes:</strong> Training cost and resource estimates are derived from published technical reports (LLaMA 3, PaLM-2, Chinchilla, GPT-3), third-party analyses by SemiAnalysis, Epoch AI, and MLCommons, and public statements from AI labs. GPT-4 and Claude specifics remain partially undisclosed; figures represent credible estimates. Energy figures assume average U.S. data center PUE of 1.3.<br><br>
+      <span style="opacity:0.6">© Portfolio Artifact — AI/ML Infrastructure Module · Figures current as of mid-2024</span>
+    </div>
+    <div class="footer-brand">LLM<br>TRAINING<br>GUIDE</div>
+  </footer>
+
+</div>
+</body>
+</html>
