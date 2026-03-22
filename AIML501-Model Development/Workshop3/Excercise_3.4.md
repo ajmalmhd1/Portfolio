@@ -60,3 +60,14 @@ The comparison between GPT-4 (~1.8T parameters est.) and LLaMA 3 405B (405B para
 
 Energy consumption figures are included because they represent a growing policy, regulatory, and reputational consideration for AI developers. The ~50 GWh estimate for GPT-4 is contextualized against household energy consumption to make the figure tangible for non-specialist audiences.
 
+                                              4. Sources & References
+                                              
+•	Touvron et al. (2024). The LLaMA 3 Herd of Models. Meta AI Research. (arXiv:2407.21783)  
+•	Hoffmann et al. (2022). Training Compute-Optimal Large Language Models (Chinchilla). DeepMind.
+•	Anil et al. (2023). PaLM 2 Technical Report. Google.
+•	OpenAI (2023). GPT-4 Technical Report.
+•	Epoch AI (2023-2024). Tracking Large-Scale AI Models. epochai.org
+•	SemiAnalysis (2023). GPT-4 Architecture, Infrastructure, Training Dataset. semianalysis.com
+•	Luccioni, Viguier & Ligozat (2022). Estimating the Carbon Footprint of BLOOM. arXiv:2211.02001
+•	Mistral AI (2023). Mistral 7B. arXiv:2310.06825
+
