@@ -50,7 +50,7 @@ Several frontier model details remain commercially confidential. OpenAI and Anth
 
 3.2 The Compute Dominance
 
-One of the most important insights surfaced by this infographic is that GPU/TPU hardware represents the overwhelming majority (~65%) of training cost. This has significant implications for AI investment decisions—access to compute at scale is the primary barrier to frontier model training, not data or algorithms.
+One of the most important insights surfaced by this infographic is that GPU/TPU hardware represents the overwhelming majority (~65%) of training cost. This has significant implications for AI investment decisions access to compute at scale is the primary barrier to frontier model training, not data or algorithms.
 
 3.3 Efficiency as a Competitive Dimension
 
