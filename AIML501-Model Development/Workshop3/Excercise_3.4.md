@@ -1,13 +1,13 @@
 
 Training Generative AI Large Language Models -- Process, Infrastructure & Resource Costs
 
-1. Overview
+                                        1. Overview
 
 The artifact below is an interactive HTML infographic that visually communicates the end-to-end training pipeline and resource infrastructure required to build today's most prominent generative AI large language models (LLMs). The infographic covers four prominent model families—GPT-4 (OpenAI), Claude (Anthropic), Gemini (Google DeepMind), and LLaMA (Meta AI)—alongside additional models including Grok and Mistral for comparative context.
 
 https://ajmalmhd1.github.io/Portfolio/llm_training_infographic.html
 
-2. Main points Illustrated
+                                   2. Main points Illustrated
    
 2.1 The Six-Stage Training Pipeline
 
@@ -43,7 +43,7 @@ A key educational element: the 2022 DeepMind Chinchilla paper established that o
 
 Six headline statistics distill the most memorable data points: 10,000x compute increase from GPT-2 to GPT-4; $100M+ frontier training costs; 15T training tokens; 50 GWh energy; 54-day training duration; and the 20:1 Chinchilla ratio.
 
-3. Key Considerations
+                                          3. Key Considerations
    
 3.1 Data Transparency Limitations
 Several frontier model details remain commercially confidential. OpenAI and Anthropic do not publish exact parameter counts, training data sizes, or compute costs for GPT-4 and Claude 3 respectively. All figures for these models are sourced from credible third-party analyses (SemiAnalysis, Epoch AI) and publicly available technical reporting. This limitation is acknowledged in the footer.
