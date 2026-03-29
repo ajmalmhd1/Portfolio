@@ -1,5 +1,5 @@
 
-                                   Assignment 4.4- Explainable AI (XAI)
+                               Assignment 4.4- Explainable AI (XAI)
 
 This project showcases a visually engaging infographic on Explainable Artificial Intelligence (XAI), designed to simplify complex AI concepts.
 It highlights the importance of transparency and interpretability in modern machine learning systems.
