@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explainable AI — Making the Black Box Transparent</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111118;
+    --paper: #f4f1ea;
+    --accent: #c0391a;
+    --gold: #b8882a;
+    --slate: #2e3148;
+    --muted: #6b6b80;
+    --pale: #dedad0;
+    --highlight: #ede8d8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 32px 60px;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    border-top: 4px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 32px 0 28px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .header-eyebrow {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+
+  .header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(38px, 5vw, 60px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--ink);
+  }
+
+  .header h1 span {
+    color: var(--accent);
+  }
+
+  .header-sub {
+    margin-top: 16px;
+    font-size: 16px;
+    color: var(--slate);
+    max-width: 560px;
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  .header-badge {
+    position: absolute;
+    right: 0;
+    top: 32px;
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-align: right;
+    line-height: 2;
+    text-transform: uppercase;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .section-label .num {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--paper);
+    background: var(--ink);
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .section-label h2 {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--slate);
+    font-weight: 500;
+  }
+
+  /* ── WHAT IS XAI ── */
+  .xai-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .xai-definition {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 32px;
+    border-radius: 4px;
+  }
+
+  .xai-definition h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.25;
+  }
+
+  .xai-definition h3 em {
+    color: #f0c060;
+    font-style: italic;
+  }
+
+  .xai-definition p {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #d0d0e0;
+    font-weight: 400;
+  }
+
+  .xai-why {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .why-card {
+    background: var(--highlight);
+    border-left: 3px solid var(--gold);
+    padding: 16px 20px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .why-card .why-sector {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .why-card p {
+    font-size: 13.5px;
+    color: var(--slate);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── MODELS ROW ── */
+  .models-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+
+  .model-card {
+    border: 1px solid var(--pale);
+    border-radius: 4px;
+    padding: 20px 16px;
+    text-align: center;
+    background: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .model-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+
+  .model-card.gpt::before { background: #10a37f; }
+  .model-card.claude::before { background: #c8401a; }
+  .model-card.gemini::before { background: #4285f4; }
+  .model-card.llama::before { background: #7b5ea7; }
+
+  .model-org {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+
+  .model-name {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .model-card.gpt .model-name { color: #0d8a6a; }
+  .model-card.claude .model-name { color: var(--accent); }
+  .model-card.gemini .model-name { color: #2a6fd4; }
+  .model-card.llama .model-name { color: #6344a0; }
+
+  .model-note {
+    font-size: 12.5px;
+    color: var(--slate);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--pale);
+    margin: 0 0 40px;
+  }
+
+  /* ── CHALLENGES ── */
+  .challenges-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .challenge-card {
+    padding: 24px 20px;
+    background: white;
+    border: 1px solid var(--pale);
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .challenge-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .challenge-card h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 9px;
+    color: var(--ink);
+  }
+
+  .challenge-card p {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  .challenge-tag {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--pale);
+    color: var(--muted);
+    padding: 4px 9px;
+    border-radius: 2px;
+    font-weight: 400;
+  }
+
+  /* ── METRICS ── */
+  .metrics-section {
+    margin-bottom: 48px;
+  }
+
+  .metrics-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 20px;
+  }
+
+  .metrics-table {
+    background: white;
+    border: 1px solid var(--pale);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .metrics-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .metrics-table thead th {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .metrics-table tbody td {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--pale);
+    color: var(--slate);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .metrics-table tbody tr:last-child td { border-bottom: none; }
+
+  .metrics-table tbody td:first-child {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .metric-dot {
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    margin-right: 7px;
+    vertical-align: middle;
+  }
+
+  .validation-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .val-card {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 20px 22px;
+    border-radius: 4px;
+  }
+
+  .val-card h4 {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #f0c060;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .val-card p {
+    font-size: 13px;
+    color: #c0c0d8;
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  /* ── SOLUTIONS ── */
+  .solutions-section {
+    margin-bottom: 48px;
+  }
+
+  .solutions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .solution-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 22px;
+    background: white;
+    border: 1px solid var(--pale);
+    border-radius: 4px;
+  }
+
+  .solution-num {
+    font-family: 'Fraunces', serif;
+    font-size: 34px;
+    font-weight: 900;
+    color: var(--pale);
+    line-height: 1;
+  }
+
+  .solution-card h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 7px;
+    color: var(--ink);
+  }
+
+  .solution-card p {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  .solution-source {
+    display: inline-block;
+    margin-top: 9px;
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  /* ── TRUST PIPELINE ── */
+  .pipeline-section {
+    margin-bottom: 48px;
+  }
+
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    background: var(--ink);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .pipe-step {
+    flex: 1;
+    padding: 24px 18px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+
+  .pipe-step:last-child { border-right: none; }
+
+  .pipe-step .step-num {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: #f0c060;
+    margin-bottom: 9px;
+    font-weight: 500;
+  }
+
+  .pipe-step h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #f4f1ea;
+    margin-bottom: 7px;
+  }
+
+  .pipe-step p {
+    font-size: 12px;
+    color: #9090b0;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── EXPLANATORY TEXT ── */
+  .explanatory {
+    background: var(--highlight);
+    border: 1px solid #c8a050;
+    border-radius: 4px;
+    padding: 30px 34px;
+    margin-bottom: 32px;
+  }
+
+  .explanatory h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .explanatory p {
+    font-size: 14.5px;
+    line-height: 1.8;
+    color: var(--slate);
+    margin-bottom: 14px;
+    font-weight: 400;
+  }
+
+  .explanatory p:last-child { margin-bottom: 0; }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--pale);
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .footer-right {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 680px) {
+    .xai-intro, .challenges-grid, .solutions-grid { grid-template-columns: 1fr; }
+    .models-row { grid-template-columns: 1fr 1fr; }
+    .metrics-layout { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .header-badge { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-eyebrow">Professional Portfolio Artifact · Explainable AI</div>
+  <h1>Making the <span>Black Box</span><br>Transparent</h1>
+  <p class="header-sub">A guide to Explainable AI — why transparency in large language models matters, what makes it hard, and how industry leaders are solving it.</p>
+  <div class="header-badge">
+    Topics Covered<br>
+    Explainability · Validation<br>
+    Metrics · Solutions
+  </div>
+</header>
+
+<!-- SECTION 1: WHAT IS XAI -->
+<div class="section-label">
+  <div class="num">1</div>
+  <h2>What Is Explainable AI &amp; Why Does It Matter?</h2>
+</div>
+
+<div class="xai-intro">
+  <div class="xai-definition">
+    <h3><em>Explainable AI (XAI)</em> is the set of techniques that make AI decisions understandable to humans.</h3>
+    <p>Modern large language models like GPT, Claude, Gemini, and LLaMA process billions of parameters to generate outputs — but their internal reasoning is invisible to users. XAI aims to open that black box, ensuring that AI systems can justify their outputs in terms humans can understand, audit, and trust.</p>
+  </div>
+  <div class="xai-why">
+    <div class="why-card">
+      <div class="why-sector">Healthcare</div>
+      <p>Clinicians must understand why an AI recommends a diagnosis to override incorrect advice and maintain patient safety.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-sector">Finance</div>
+      <p>Regulatory frameworks (e.g., GDPR "right to explanation") require that automated loan or fraud decisions be explainable.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-sector">Law &amp; Policy</div>
+      <p>Judicial systems and compliance teams need auditable AI reasoning to uphold fairness and accountability.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODELS -->
+<div class="section-label">
+  <div class="num" style="background:var(--accent)">→</div>
+  <h2>Key Large Language Models Under the Lens</h2>
+</div>
+
+<div class="models-row">
+  <div class="model-card gpt">
+    <div class="model-org">OpenAI</div>
+    <div class="model-name">GPT-4o</div>
+    <div class="model-note">Chain-of-thought reasoning; structured outputs for auditability</div>
+  </div>
+  <div class="model-card claude">
+    <div class="model-org">Anthropic</div>
+    <div class="model-name">Claude</div>
+    <div class="model-note">Constitutional AI alignment; explicit refusals with stated reasoning</div>
+  </div>
+  <div class="model-card gemini">
+    <div class="model-org">Google DeepMind</div>
+    <div class="model-name">Gemini</div>
+    <div class="model-note">Multimodal grounding; source attribution in Search integration</div>
+  </div>
+  <div class="model-card llama">
+    <div class="model-org">Meta AI</div>
+    <div class="model-name">LLaMA</div>
+    <div class="model-note">Open weights enable external research into model internals</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SECTION 2: CHALLENGES -->
+<div class="section-label">
+  <div class="num">2</div>
+  <h2>Challenges in Explainability</h2>
+</div>
+
+<div class="challenges-grid">
+  <div class="challenge-card">
+    <span class="challenge-icon">🔲</span>
+    <h4>Black Box Opacity</h4>
+    <p>Decisions emerge from billions of non-linear parameter interactions. No single component explains the final output, making it fundamentally difficult to trace reasoning.</p>
+    <span class="challenge-tag">Core problem</span>
+  </div>
+  <div class="challenge-card">
+    <span class="challenge-icon">🔁</span>
+    <h4>Post-Hoc Explanation Gap</h4>
+    <p>Explanations are often generated after the decision and may not reflect actual internal computation — creating a plausible-sounding but potentially inaccurate narrative.</p>
+    <span class="challenge-tag">Trust risk</span>
+  </div>
+  <div class="challenge-card">
+    <span class="challenge-icon">⚖️</span>
+    <h4>Data Bias &amp; Quality</h4>
+    <p>Models inherit biases from training data. Biased outputs may appear confident and coherent, yet systematically disadvantage groups — and are difficult to detect without XAI.</p>
+    <span class="challenge-tag">Fairness</span>
+  </div>
+  <div class="challenge-card">
+    <span class="challenge-icon">📏</span>
+    <h4>Scale &amp; Complexity</h4>
+    <p>As models grow larger (GPT-4 has ~1.8T parameters), the combinatorial complexity of interactions grows exponentially, outpacing our analytical tools.</p>
+    <span class="challenge-tag">Technical</span>
+  </div>
+  <div class="challenge-card">
+    <span class="challenge-icon">🌐</span>
+    <h4>Regulatory Compliance</h4>
+    <p>GDPR, the EU AI Act, and sector-specific rules require explainability by law. Meeting these standards across diverse jurisdictions is a moving target for developers.</p>
+    <span class="challenge-tag">Legal</span>
+  </div>
+  <div class="challenge-card">
+    <span class="challenge-icon">🎯</span>
+    <h4>Faithfulness vs. Simplicity</h4>
+    <p>Explanations that are accurate enough to be faithful are often too technical for users; simplified explanations are accessible but may be misleading.</p>
+    <span class="challenge-tag">Communication</span>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SECTION 3: METRICS -->
+<div class="section-label">
+  <div class="num">3</div>
+  <h2>Validation &amp; Performance Metrics</h2>
+</div>
+
+<div class="metrics-section">
+  <div class="metrics-layout">
+    <div class="metrics-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>What It Measures</th>
+            <th>Role in Trust</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="metric-dot" style="background:#10a37f"></span>BLEU / ROUGE</td>
+            <td>Text similarity to reference outputs</td>
+            <td>Baseline quality check</td>
+          </tr>
+          <tr>
+            <td><span class="metric-dot" style="background:#c8401a"></span>Faithfulness</td>
+            <td>Does the explanation match actual model behavior?</td>
+            <td>Prevents misleading explanations</td>
+          </tr>
+          <tr>
+            <td><span class="metric-dot" style="background:#d4a336"></span>Robustness</td>
+            <td>Consistency of output under input perturbations</td>
+            <td>Detects instability &amp; brittleness</td>
+          </tr>
+          <tr>
+            <td><span class="metric-dot" style="background:#4285f4"></span>Calibration</td>
+            <td>Confidence scores vs. actual correctness</td>
+            <td>Identifies overconfident errors</td>
+          </tr>
+          <tr>
+            <td><span class="metric-dot" style="background:#7b5ea7"></span>Fairness Metrics</td>
+            <td>Demographic parity, equalized odds</td>
+            <td>Exposes discriminatory patterns</td>
+          </tr>
+          <tr>
+            <td><span class="metric-dot" style="background:#555"></span>Human Eval</td>
+            <td>User satisfaction &amp; perceived clarity</td>
+            <td>Real-world trust measurement</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="validation-stack">
+      <div class="val-card">
+        <h4>Red-Teaming</h4>
+        <p>Adversarial testing where teams deliberately probe for failures, hallucinations, and edge cases — exposing gaps before deployment.</p>
+      </div>
+      <div class="val-card">
+        <h4>Benchmark Suites</h4>
+        <p>Standardized test sets (MMLU, HellaSwag, TruthfulQA) allow apples-to-apples comparisons of model reliability across organizations.</p>
+      </div>
+      <div class="val-card">
+        <h4>Audit Trails</h4>
+        <p>Logging inputs, outputs, and model versions for post-hoc review ensures accountability and regulatory compliance over time.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SECTION 4: SOLUTIONS -->
+<div class="section-label">
+  <div class="num">4</div>
+  <h2>Current Industry Solutions &amp; Techniques</h2>
+</div>
+
+<div class="solutions-section">
+  <div class="solutions-grid">
+    <div class="solution-card">
+      <div class="solution-num">01</div>
+      <div>
+        <h4>Chain-of-Thought Prompting</h4>
+        <p>Asking models to reason step-by-step before giving an answer surfaces intermediate logic, allowing users to spot errors and understand the decision path.</p>
+        <span class="solution-source">↳ OpenAI, Anthropic, Google</span>
+      </div>
+    </div>
+    <div class="solution-card">
+      <div class="solution-num">02</div>
+      <div>
+        <h4>Attention Visualization</h4>
+        <p>Heatmaps of attention weights show which input tokens most influenced the output — giving a window into what the model "looked at" when generating a response.</p>
+        <span class="solution-source">↳ Research community, Hugging Face tools</span>
+      </div>
+    </div>
+    <div class="solution-card">
+      <div class="solution-num">03</div>
+      <div>
+        <h4>Constitutional AI (CAI)</h4>
+        <p>Anthropic's technique trains Claude using a set of explicit principles, giving the model rules it can articulate — making refusals and decisions more traceable.</p>
+        <span class="solution-source">↳ Anthropic</span>
+      </div>
+    </div>
+    <div class="solution-card">
+      <div class="solution-num">04</div>
+      <div>
+        <h4>LIME &amp; SHAP</h4>
+        <p>Model-agnostic post-hoc tools that approximate local model behavior, assigning importance scores to input features so non-experts can interpret predictions.</p>
+        <span class="solution-source">↳ ML research, enterprise deployments</span>
+      </div>
+    </div>
+    <div class="solution-card">
+      <div class="solution-num">05</div>
+      <div>
+        <h4>Retrieval-Augmented Generation</h4>
+        <p>RAG grounds model responses in cited, retrievable documents — making it possible to verify claims against specific sources rather than treating output as opaque.</p>
+        <span class="solution-source">↳ Google (Gemini), Meta, startups</span>
+      </div>
+    </div>
+    <div class="solution-card">
+      <div class="solution-num">06</div>
+      <div>
+        <h4>Open Weights &amp; Research Access</h4>
+        <p>Meta's release of LLaMA weights enables independent researchers to probe model internals — accelerating XAI research outside of proprietary labs.</p>
+        <span class="solution-source">↳ Meta AI</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PIPELINE -->
+<div class="pipeline-section">
+  <div class="section-label">
+    <div class="num" style="background:var(--accent)">→</div>
+    <h2>How It All Connects: The XAI Trust Pipeline</h2>
+  </div>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="step-num">STEP 01</div>
+      <h4>Train</h4>
+      <p>Model trained on curated, bias-audited data with alignment techniques baked in</p>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">STEP 02</div>
+      <h4>Validate</h4>
+      <p>Benchmarks, red-teaming, and fairness checks surface reliability gaps before deployment</p>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">STEP 03</div>
+      <h4>Explain</h4>
+      <p>XAI techniques (CoT, SHAP, attention) make model reasoning visible to users and auditors</p>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">STEP 04</div>
+      <h4>Monitor</h4>
+      <p>Ongoing metric tracking, audit logs, and user feedback loops detect drift and new failures</p>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">STEP 05</div>
+      <h4>Trust</h4>
+      <p>Transparent, well-validated, explainable AI earns justified confidence from users and regulators</p>
+    </div>
+  </div>
+</div>
+
+<!-- EXPLANATORY DOCUMENT -->
+<div class="explanatory">
+  <h3>Explanatory Document</h3>
+  <p>This infographic presents a structured overview of Explainable AI (XAI) for a general professional audience. The four-section layout mirrors the logical progression from problem definition to solution: beginning with why transparency matters across high-stakes industries, then identifying the core technical and regulatory obstacles, followed by the concrete metrics and validation processes that assess reliability, and finally the industry techniques actively closing the gap. The XAI Trust Pipeline at the bottom synthesizes these threads into a single workflow, reinforcing that explainability is not a one-time checkbox but a continuous, embedded process.</p>
+  <p>Explainability, validation, and performance metrics are interdependent pillars of trustworthy AI. Without explainability, even a highly accurate model is a liability in audited domains — stakeholders cannot identify when it fails or why. Without rigorous validation metrics like faithfulness scores, robustness checks, and fairness evaluations, explanations themselves may be misleading proxies rather than true reflections of model behavior. Together, these elements create a feedback loop: better explanations surface failures, better metrics quantify them, and improved training corrects them. As models grow more capable and are deployed in increasingly consequential settings, this discipline — once optional — becomes essential infrastructure for responsible AI development.</p>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">Explainable AI Portfolio Artifact · 2025</div>
+  <div class="footer-right">Sources: OpenAI, Anthropic, Google DeepMind, Meta AI Research, EU AI Act, NIST AI RMF</div>
+</div>
+
+</body>
+</html>
