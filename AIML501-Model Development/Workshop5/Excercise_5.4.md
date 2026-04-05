@@ -15,4 +15,4 @@ Inference Speed — latency and throughput for deployment scenarios
 Explainability — interpretability using tools like SHAP and Grad-CAM
 
 The interactive HTML artifact includes filterable model profile cards, a full decision matrix table, trade-off charts, and scenario-based recommendations — helping practitioners match the right model to the right use case, whether deploying on-device, in the cloud, or in regulated industries requiring audit trails.
-Tools & technologies: HTML, CSS, JavaScript, Chart.js, Google Fonts.
+
