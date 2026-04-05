@@ -10,7 +10,7 @@ https://ajmalmhd1.github.io/Portfolio/decision_matrix.html
 
 Key criteria analyzed:
 
-Size/Compactness —parameter count and memory footprint
+Size/Compactness -parameter count and memory footprint
 
 Accuracy —benchmark performance (MMLU, ImageNet Top-1, GLUE, Kaggle)
 
