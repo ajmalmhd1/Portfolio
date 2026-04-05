@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-trained Model Decision Matrix</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,600;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --burg:     #6D1A2A;
+    --burg-dk:  #4e1220;
+    --burg-md:  #8a2236;
+    --burg-lt:  #a83348;
+    --burg-pale:#f8eef0;
+    --burg-tint:#f0d8dc;
+    --bg:       #ffffff;
+    --bg2:      #fdf5f6;
+    --surface:  #ffffff;
+    --surface2: #fdf5f6;
+    --border:   #e8d0d4;
+    --border2:  #c9a0a9;
+    --text:     #2a0d13;
+    --text2:    #5a2d35;
+    --text3:    #9a6970;
+    --accent:   #6D1A2A;
+    --nlp:      #8B1A4A;
+    --nlp-bg:   #fceef4;
+    --nlp-b:    #e8b0c8;
+    --cv:       #6D3A1A;
+    --cv-bg:    #fdf2ea;
+    --cv-b:     #e8c4a0;
+    --tab:      #5a1a4e;
+    --tab-bg:   #f7eef6;
+    --tab-b:    #d4aed0;
+    --font:   'Plus Jakarta Sans', sans-serif;
+    --serif:  'Lora', serif;
+    --mono:   'JetBrains Mono', monospace;
+    --r: 14px;
+    --sh: 0 1px 4px rgba(109,26,42,.08), 0 4px 16px rgba(109,26,42,.06);
+    --sh2: 0 6px 16px rgba(109,26,42,.12), 0 16px 40px rgba(109,26,42,.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #f4f1f1;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 1100px; margin: 0 auto; padding: 0 40px 80px;
+    background: #ffffff;
+  }
+
+  /* HEADER */
+  .header {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: start; gap: 0;
+    margin-bottom: 0;
+    position: relative;
+  }
+  /* Left hero panel — burgundy */
+  .header-left {
+    background: linear-gradient(135deg, var(--burg-dk) 0%, var(--burg) 70%, var(--burg-md) 100%);
+    padding: 56px 48px 48px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-left::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    pointer-events: none;
+  }
+  /* Right stats panel — white */
+  .header-right {
+    background: #ffffff;
+    border-left: 1px solid var(--border);
+    border-bottom: 3px solid var(--burg);
+    padding: 56px 32px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 160px;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::before { content:''; width:24px; height:2px; background:rgba(255,255,255,.4); border-radius:1px; display:block; }
+  h1 {
+    font-family: var(--font); font-size: 38px; font-weight: 700;
+    line-height: 1.1; letter-spacing: -.025em; color: #ffffff; margin-bottom: 18px;
+  }
+  h1 em { font-family: var(--serif); font-style: italic; font-weight: 600; color: #f5c8d0; }
+  .header-desc { font-size: 15px; color: rgba(255,255,255,.72); max-width: 520px; line-height: 1.75; }
+  .stat-block {
+    background: #ffffff; border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 14px 18px; text-align: center; box-shadow: var(--sh); min-width: 110px;
+  }
+  .stat-num { font-family: var(--mono); font-size: 26px; font-weight: 500; color: var(--burg); line-height: 1; }
+  .stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-top: 4px; }
+
+  /* FILTERS */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; margin-top: 36px; }
+  .filter-btn {
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    padding: 8px 18px; border-radius: 100px; border: 1.5px solid var(--border2);
+    background: var(--surface); color: var(--text2); cursor: pointer; transition: all .18s;
+    box-shadow: var(--sh);
+  }
+  .filter-btn:hover { border-color: var(--burg); color: var(--burg); }
+  .filter-btn.active { background: var(--burg); color: #fff; border-color: var(--burg); }
+  .filter-btn.nlp.active { background: var(--nlp); border-color: var(--nlp); color: #fff; }
+  .filter-btn.cv.active  { background: var(--cv);  border-color: var(--cv);  color: #fff; }
+  .filter-btn.tab.active { background: var(--tab); border-color: var(--tab); color: #fff; }
+
+  /* SECTION HEAD */
+  .sh { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .sh-title { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--burg); white-space: nowrap; }
+  .sh-rule { flex: 1; height: 1px; background: var(--burg-tint); }
+
+  /* CARDS */
+  .cards-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 56px; }
+  @media(max-width:820px){ .cards-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:520px){ .cards-grid{ grid-template-columns:1fr; } }
+  .model-card {
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
+    padding: 22px; box-shadow: var(--sh);
+    transition: box-shadow .2s, transform .2s, border-color .2s;
+    animation: riseIn .35s cubic-bezier(.16,1,.3,1) both;
+  }
+  .model-card:hover { box-shadow: var(--sh2); transform: translateY(-3px); border-color: var(--burg-lt); }
+  @keyframes riseIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .card-name { font-size: 17px; font-weight: 700; color: var(--burg-dk); letter-spacing: -.015em; line-height: 1.2; }
+  .card-org { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .badge {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 6px; border: 1px solid; flex-shrink: 0; margin-top: 2px;
+  }
+  .badge-nlp { background: var(--nlp-bg); color: var(--nlp); border-color: var(--nlp-b); }
+  .badge-cv  { background: var(--cv-bg);  color: var(--cv);  border-color: var(--cv-b);  }
+  .badge-tab { background: var(--tab-bg); color: var(--tab); border-color: var(--tab-b); }
+  .card-params {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    background: var(--burg-pale); border: 1px solid var(--burg-tint); border-radius: 7px;
+    padding: 6px 10px; margin-bottom: 14px; display: flex; justify-content: space-between;
+  }
+  .metrics { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .metric { display: grid; grid-template-columns: 80px 1fr 36px; align-items: center; gap: 10px; }
+  .metric-lbl { font-family: var(--mono); font-size: 10.5px; font-weight: 500; color: var(--text3); letter-spacing: .04em; }
+  .bar-bg { height: 5px; background: var(--burg-tint); border-radius: 3px; overflow: hidden; }
+  .bar-fg { height: 100%; border-radius: 3px; transition: width .55s cubic-bezier(.16,1,.3,1); }
+  .metric-val { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text2); text-align: right; }
+  .card-desc { font-size: 13px; color: var(--text2); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 14px; }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
+    overflow-x: auto; box-shadow: var(--sh); margin-bottom: 56px;
+  }
+  table { width: 100%; border-collapse: collapse; min-width: 740px; }
+  thead th {
+    font-family: var(--font); font-size: 11px; font-weight: 700;
+    letter-spacing: .07em; text-transform: uppercase; color: #ffffff;
+    padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--burg-md);
+    background: var(--burg); white-space: nowrap;
+  }
+  tbody td { padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 13.5px; vertical-align: middle; color: var(--text2); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--burg-pale); }
+  .td-name { font-weight: 700; font-size: 14px; color: var(--burg-dk); white-space: nowrap; }
+  .td-size { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+  .td-bench { font-family: var(--mono); font-size: 12px; color: var(--burg); font-weight: 500; }
+  .td-use { font-size: 12.5px; color: var(--text3); max-width: 190px; line-height: 1.5; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 100px;
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    letter-spacing: .02em; white-space: nowrap; border: 1px solid;
+  }
+  .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .chip-high { background:#f0faf5; color:#1a5c3a; border-color:#a8dfc0; }
+  .chip-mid  { background:#fdf5ea; color:#7a4010; border-color:#f0c88a; }
+  .chip-low  { background:#fdf0f2; color:#8b1a2a; border-color:#e8a0a8; }
+
+  /* CHARTS */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 56px; }
+  @media(max-width:640px){ .charts-grid{ grid-template-columns:1fr; } }
+  .chart-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r); padding: 24px; box-shadow: var(--sh); }
+  .chart-heading { font-size: 14px; font-weight: 700; color: var(--burg-dk); margin-bottom: 4px; letter-spacing: -.01em; }
+  .chart-sub { font-size: 12px; color: var(--text3); margin-bottom: 20px; }
+  .chart-box { position: relative; height: 210px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text2); font-weight: 500; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+
+  /* TILES — burgundy accent strip */
+  .tiles-section {
+    background: linear-gradient(135deg, var(--burg-dk) 0%, var(--burg) 60%, var(--burg-md) 100%);
+    margin: 0 -40px 56px;
+    padding: 40px 40px;
+  }
+  .tiles-section .sh-title { color: rgba(255,255,255,.55); }
+  .tiles-section .sh-rule  { background: rgba(255,255,255,.15); }
+  .tiles {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+  }
+  @media(max-width:720px){ .tiles{ grid-template-columns:repeat(2,1fr); } }
+  .tile {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: var(--r);
+    padding: 22px 18px;
+    backdrop-filter: blur(4px);
+    transition: background .2s;
+  }
+  .tile:hover { background: rgba(255,255,255,.14); }
+  .tile-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+  .tile-title { font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 6px; letter-spacing: -.01em; line-height: 1.3; }
+  .tile-desc { font-size: 12.5px; color: rgba(255,255,255,.65); line-height: 1.7; }
+
+  /* REC CARDS */
+  .rec-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 56px; }
+  @media(max-width:820px){ .rec-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:520px){ .rec-grid{ grid-template-columns:1fr; } }
+  .rec-card {
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
+    padding: 22px; box-shadow: var(--sh); transition: box-shadow .2s, transform .2s, border-color .2s;
+  }
+  .rec-card:hover { box-shadow: var(--sh2); transform: translateY(-2px); border-color: var(--burg-lt); }
+  .rec-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .rec-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid; }
+  .rec-domain { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--burg); }
+  .rec-title { font-size: 14px; font-weight: 700; color: var(--burg-dk); margin-bottom: 8px; line-height: 1.35; letter-spacing: -.01em; }
+  .rec-model-tag { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 6px; border: 1px solid; margin-bottom: 10px; }
+  .rec-desc { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+  /* FOOTER */
+  .footer {
+    background: var(--burg-pale);
+    border-top: 3px solid var(--burg);
+    margin: 0 -40px -80px;
+    padding: 28px 40px 36px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 20px; flex-wrap: wrap;
+  }
+  .footer-left { font-size: 13px; color: var(--text2); line-height: 1.75; }
+  .footer-left strong { color: var(--burg-dk); font-weight: 700; }
+  .footer-right { font-family: var(--mono); font-size: 11px; color: var(--text3); letter-spacing: .06em; padding-top: 4px; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--burg-tint); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--burg-lt); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <div class="header-left">
+      <div class="eyebrow">Portfolio Artifact · AI / ML Model Analysis</div>
+      <h1>Pre-trained Model<br><em>Decision Matrix</em></h1>
+      <p class="header-desc">A structured comparison of model size, accuracy, inference speed, and explainability across NLP, Computer Vision, and Tabular AI domains — to support informed model selection in real-world deployments.</p>
+    </div>
+    <div class="header-right">
+      <div class="stat-block"><div class="stat-num">06</div><div class="stat-lbl">Models</div></div>
+      <div class="stat-block"><div class="stat-num">03</div><div class="stat-lbl">Domains</div></div>
+      <div class="stat-block"><div class="stat-num">04</div><div class="stat-lbl">Criteria</div></div>
+    </div>
+  </header>
+
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="applyFilter('all',this)">All models</button>
+    <button class="filter-btn nlp"    onclick="applyFilter('NLP',this)">NLP / Generative AI</button>
+    <button class="filter-btn cv"     onclick="applyFilter('CV',this)">Computer Vision</button>
+    <button class="filter-btn tab"    onclick="applyFilter('TAB',this)">Tabular Data</button>
+  </div>
+
+  <div class="sh"><span class="sh-title">Model profiles</span><span class="sh-rule"></span></div>
+  <div class="cards-grid" id="cardsGrid"></div>
+
+  <div class="sh"><span class="sh-title">Decision matrix</span><span class="sh-rule"></span></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th><th>Domain</th><th>Size / Params</th><th>Benchmark</th>
+          <th>Accuracy</th><th>Speed</th><th>Explainability</th><th>Best use case</th>
+        </tr>
+      </thead>
+      <tbody id="matrixBody"></tbody>
+    </table>
+  </div>
+
+  <div class="sh"><span class="sh-title">Trade-off analysis</span><span class="sh-rule"></span></div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-heading">Accuracy vs. Inference Speed</div>
+      <div class="chart-sub">Top-right quadrant = ideal balance</div>
+      <div class="chart-box"><canvas id="scatterChart"></canvas></div>
+      <div class="legend" id="scatterLegend"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-heading">Model Compactness Score</div>
+      <div class="chart-sub">Higher = smaller and faster to deploy</div>
+      <div class="chart-box"><canvas id="barChart"></canvas></div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#8B1A4A"></span>NLP</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#7a3010"></span>Computer Vision</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#6D1A2A"></span>Tabular</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tiles-section">
+    <div class="sh"><span class="sh-title">Key trade-off insights</span><span class="sh-rule"></span></div>
+    <div class="tiles">
+      <div class="tile">
+        <span class="tile-icon">⚖️</span>
+        <div class="tile-title">Size vs. Accuracy</div>
+        <div class="tile-desc">Larger models like GPT-4 push accuracy limits but are impractical for edge deployment. EfficientNet-B7 achieves an exceptional accuracy-to-parameter ratio.</div>
+      </div>
+      <div class="tile">
+        <span class="tile-icon">⚡</span>
+        <div class="tile-title">Speed vs. Quality</div>
+        <div class="tile-desc">MobileNetV3 and LightGBM deliver sub-millisecond inference. GPT-4 latency runs 100–200× higher. Knowledge distillation bridges the NLP gap.</div>
+      </div>
+      <div class="tile">
+        <span class="tile-icon">🔍</span>
+        <div class="tile-title">Explainability</div>
+        <div class="tile-desc">Tree models (XGBoost, LightGBM) excel with native SHAP values. Deep networks need post-hoc tools like Grad-CAM or LIME for interpretability.</div>
+      </div>
+      <div class="tile">
+        <span class="tile-icon">🎯</span>
+        <div class="tile-title">Domain Fit</div>
+        <div class="tile-desc">No single model spans all domains. Tabular data rarely benefits from deep learning; CNNs are poor at language; LLMs are overkill for simple classification.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sh"><span class="sh-title">Recommendations by scenario</span><span class="sh-rule"></span></div>
+  <div class="rec-grid">
+    <div class="rec-card">
+      <div class="rec-top">
+        <div class="rec-icon" style="background:var(--nlp-bg);border-color:var(--nlp-b)">🔤</div>
+        <span class="rec-domain" style="color:var(--nlp)">NLP</span>
+      </div>
+      <div class="rec-title">Resource-constrained NLP tasks</div>
+      <span class="rec-model-tag badge-nlp">BERT-base</span>
+      <div class="rec-desc">110M parameters fit on CPU inference servers. Fine-tuning typically yields 88–92% task accuracy. DistilBERT cuts latency 40% at only ~3% accuracy cost.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-top">
+        <div class="rec-icon" style="background:var(--nlp-bg);border-color:var(--nlp-b)">✨</div>
+        <span class="rec-domain" style="color:var(--nlp)">NLP</span>
+      </div>
+      <div class="rec-title">High-quality generative AI (cloud)</div>
+      <span class="rec-model-tag badge-nlp">GPT-4</span>
+      <div class="rec-desc">State-of-the-art reasoning, code generation, and multilingual capability. Higher API cost is justified when output quality is the top priority.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-top">
+        <div class="rec-icon" style="background:var(--cv-bg);border-color:var(--cv-b)">📱</div>
+        <span class="rec-domain" style="color:var(--cv)">Vision</span>
+      </div>
+      <div class="rec-title">On-device real-time inference</div>
+      <span class="rec-model-tag badge-cv">MobileNetV3</span>
+      <div class="rec-desc">Under 6 MB, sub-10 ms on smartphones via TFLite / ONNX. Ideal for product recognition, augmented reality, and accessibility applications.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-top">
+        <div class="rec-icon" style="background:var(--cv-bg);border-color:var(--cv-b)">🔬</div>
+        <span class="rec-domain" style="color:var(--cv)">Vision</span>
+      </div>
+      <div class="rec-title">Server-side high-accuracy vision</div>
+      <span class="rec-model-tag badge-cv">EfficientNet-B7</span>
+      <div class="rec-desc">Best-in-class ImageNet accuracy at low parameter count. Use B0–B4 variants to tune the accuracy/latency curve to your deployment budget.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-top">
+        <div class="rec-icon" style="background:var(--tab-bg);border-color:var(--tab-b)">📊</div>
+        <span class="rec-domain" style="color:var(--tab)">Tabular</span>
+      </div>
+      <div class="rec-title">Regulated, auditable ML pipelines</div>
+      <span class="rec-model-tag badge-tab">XGBoost</span>
+      <div class="rec-desc">Native SHAP integration and decision-path tracing. Required in finance and healthcare where audit trails and regulatory transparency are mandated.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-top">
+        <div class="rec-icon" style="background:var(--tab-bg);border-color:var(--tab-b)">🚀</div>
+        <span class="rec-domain" style="color:var(--tab)">Tabular</span>
+      </div>
+      <div class="rec-title">Large-scale tabular model training</div>
+      <span class="rec-model-tag badge-tab">LightGBM</span>
+      <div class="rec-desc">Leaf-wise tree learner with faster training and lower memory than XGBoost on large datasets. Preferred for rapid experimentation and high-iteration workflows.</div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <strong>Portfolio Artifact — AI/ML Competency Demonstration</strong><br>
+      Pre-trained Model Decision Matrix · NLP · Computer Vision · Tabular Data<br>
+      Benchmarks sourced from: MMLU, ImageNet Top-1, GLUE, Kaggle Tabular Leaderboards
+    </div>
+    <div class="footer-right">2025 · PROFESSIONAL PORTFOLIO</div>
+  </footer>
+
+</div>
+
+<script>
+const MODELS = [
+  { id:'gpt4',        name:'GPT-4',          org:'OpenAI',    domain:'NLP', domainLabel:'NLP / Gen AI',    badge:'badge-nlp', color:'#8B1A4A',
+    params:'~1.8T (MoE est.)', compact:10, accuracy:98, speed:18, explainability:20,
+    sizeLabel:'~1.8T params',         benchmark:'MMLU 86.4%',           useCase:'Reasoning, code gen, creative writing',
+    desc:'Frontier multimodal model with exceptional reasoning and instruction-following. High cost and latency; cloud API deployment only.' },
+  { id:'bert',        name:'BERT-base',       org:'Google',    domain:'NLP', domainLabel:'NLP / Gen AI',    badge:'badge-nlp', color:'#b83060',
+    params:'110 M',            compact:72, accuracy:72, speed:82, explainability:55,
+    sizeLabel:'110M params / ~440 MB', benchmark:'GLUE 79.6',            useCase:'Classification, NER, Q&A',
+    desc:'Bidirectional encoder widely adopted for fine-tuning. Strong practical baseline for NLP classification and extraction tasks.' },
+  { id:'mobilenet',   name:'MobileNetV3',     org:'Google',    domain:'CV',  domainLabel:'Computer Vision', badge:'badge-cv',  color:'#7a3010',
+    params:'5.4 M',            compact:98, accuracy:68, speed:97, explainability:60,
+    sizeLabel:'5.4M params / ~16 MB',  benchmark:'ImageNet 75.2%',       useCase:'Real-time on-device classification',
+    desc:'Efficiency-first CNN for mobile and embedded systems. TFLite and ONNX exports enable sub-10 ms GPU-free inference on device.' },
+  { id:'efficientnet',name:'EfficientNet-B7', org:'Google',    domain:'CV',  domainLabel:'Computer Vision', badge:'badge-cv',  color:'#a04020',
+    params:'66 M',             compact:52, accuracy:95, speed:42, explainability:55,
+    sizeLabel:'66M params / ~256 MB',  benchmark:'ImageNet 84.3%',       useCase:'Server-side high-accuracy tasks',
+    desc:'Compound-scaled CNN with best accuracy-to-parameter ratio. B0–B4 variants provide a tunable performance and latency curve.' },
+  { id:'xgboost',     name:'XGBoost',         org:'DMLC',      domain:'TAB', domainLabel:'Tabular',         badge:'badge-tab', color:'#6D1A2A',
+    params:'Tree ensembles',   compact:95, accuracy:88, speed:88, explainability:92,
+    sizeLabel:'< 50 MB typical',       benchmark:'Kaggle SOTA',          useCase:'Finance, healthcare, fraud detection',
+    desc:'Gradient-boosted decision trees. Industry standard for tabular data with native SHAP for interpretable, auditable predictions.' },
+  { id:'lightgbm',    name:'LightGBM',        org:'Microsoft', domain:'TAB', domainLabel:'Tabular',         badge:'badge-tab', color:'#5a1a4e',
+    params:'Tree ensembles',   compact:97, accuracy:86, speed:96, explainability:90,
+    sizeLabel:'< 20 MB typical',       benchmark:'Comparable to XGBoost', useCase:'Real-time scoring, large datasets',
+    desc:'Leaf-wise tree learner with faster training and lower memory than XGBoost on large datasets. Preferred for high-iteration workflows.' },
+];
+
+const BAR_COLORS = { compact:'#6D1A2A', accuracy:'#8B1A4A', speed:'#6D3A1A', explainability:'#5a1a4e' };
+
+function chip(v) {
+  const [cls, lbl] = v >= 80 ? ['chip-high','High'] : v >= 50 ? ['chip-mid','Mid'] : ['chip-low','Low'];
+  return `<span class="chip ${cls}"><span class="chip-dot"></span>${lbl}</span>`;
+}
+
+function renderCards(domain) {
+  const list = domain === 'all' ? MODELS : MODELS.filter(m => m.domain === domain);
+  document.getElementById('cardsGrid').innerHTML = list.map((m,i) => `
+    <div class="model-card" style="animation-delay:${i*.055}s">
+      <div class="card-top">
+        <div><div class="card-name">${m.name}</div><div class="card-org">${m.org}</div></div>
+        <span class="badge ${m.badge}">${m.domainLabel}</span>
+      </div>
+      <div class="card-params"><span>Parameters</span><span>${m.params}</span></div>
+      <div class="metrics">
+        ${['compact','accuracy','speed','explainability'].map(k=>`
+          <div class="metric">
+            <span class="metric-lbl">${k.charAt(0).toUpperCase()+k.slice(1)}</span>
+            <div class="bar-bg"><div class="bar-fg" style="width:${m[k]}%;background:${BAR_COLORS[k]}"></div></div>
+            <span class="metric-val">${m[k]}</span>
+          </div>`).join('')}
+      </div>
+      <div class="card-desc">${m.desc}</div>
+    </div>`).join('');
+}
+
+function renderTable(domain) {
+  const list = domain === 'all' ? MODELS : MODELS.filter(m => m.domain === domain);
+  document.getElementById('matrixBody').innerHTML = list.map(m => `
+    <tr>
+      <td class="td-name">${m.name}</td>
+      <td><span class="badge ${m.badge}">${m.domainLabel}</span></td>
+      <td class="td-size">${m.sizeLabel}</td>
+      <td class="td-bench">${m.benchmark}</td>
+      <td>${chip(m.accuracy)}</td>
+      <td>${chip(m.speed)}</td>
+      <td>${chip(m.explainability)}</td>
+      <td class="td-use">${m.useCase}</td>
+    </tr>`).join('');
+}
+
+function applyFilter(domain, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards(domain);
+  renderTable(domain);
+}
+
+renderCards('all');
+renderTable('all');
+
+const TT = {
+  backgroundColor:'#ffffff', borderColor:'#e8d0d4', borderWidth:1,
+  titleColor:'#2a0d13', bodyColor:'#5a2d35',
+  titleFont:{ family:"'Plus Jakarta Sans',sans-serif", size:13, weight:'700' },
+  bodyFont:{ family:"'JetBrains Mono',monospace", size:11 },
+  padding:12, cornerRadius:10,
+};
+const GC = 'rgba(109,26,42,0.07)';
+const BC = '#e8d0d4';
+
+new Chart(document.getElementById('scatterChart'), {
+  type:'scatter',
+  data:{
+    datasets: MODELS.map(m=>({
+      label:m.name, data:[{x:m.accuracy,y:m.speed}],
+      backgroundColor:m.color+'cc', borderColor:m.color, borderWidth:1.5,
+      pointRadius:11, pointHoverRadius:14,
+    })),
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{...TT, callbacks:{ title:c=>c[0].dataset.label, label:c=>[`Accuracy: ${c.parsed.x}`,`Speed: ${c.parsed.y}`] }},
+    },
+    scales:{
+      x:{ min:0,max:110, title:{display:true,text:'Accuracy score',color:'#9a6970',font:{family:"'JetBrains Mono'",size:11}}, ticks:{color:'#9a6970',font:{family:"'JetBrains Mono'",size:10}}, grid:{color:GC}, border:{color:BC} },
+      y:{ min:0,max:110, title:{display:true,text:'Speed score',color:'#9a6970',font:{family:"'JetBrains Mono'",size:11}}, ticks:{color:'#9a6970',font:{family:"'JetBrains Mono'",size:10}}, grid:{color:GC}, border:{color:BC} },
+    },
+  },
+});
+
+document.getElementById('scatterLegend').innerHTML = MODELS.map(m=>
+  `<div class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.name}</div>`
+).join('');
+
+new Chart(document.getElementById('barChart'), {
+  type:'bar',
+  data:{
+    labels: MODELS.map(m=>m.name),
+    datasets:[{ label:'Compactness', data:MODELS.map(m=>m.compact),
+      backgroundColor:MODELS.map(m=>m.color+'aa'), borderColor:MODELS.map(m=>m.color),
+      borderWidth:1.5, borderRadius:6,
+    }],
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{...TT, callbacks:{ title:c=>c[0].label, label:c=>`Compactness: ${c.parsed.x}%` }},
+    },
+    scales:{
+      x:{ min:0,max:100, ticks:{color:'#9a6970',font:{family:"'JetBrains Mono'",size:10},callback:v=>v+'%'}, grid:{color:GC}, border:{color:BC} },
+      y:{ ticks:{color:'#2a0d13',font:{family:"'Plus Jakarta Sans',sans-serif",size:12,weight:'600'}}, grid:{display:false}, border:{color:BC} },
+    },
+  },
+});
+</script>
+</body>
+</html>
