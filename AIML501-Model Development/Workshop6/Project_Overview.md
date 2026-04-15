@@ -6,7 +6,7 @@ This repository showcases two real-world AI chatbot solutions designed to solve 
 
 Projects Overview
 
-Blink Assist — Airline Passenger Chatbot
+Blink Assist- Airline Passenger Chatbot
 
 An AI-powered assistant integrated into an airline platform to provide real-time support for passengers.
 
@@ -19,6 +19,6 @@ Key Capabilities:
 
 Impact:
 
-📉 60% reduction in call center volume
-💬 24/7 passenger support
-💰 ~$1.8M annual cost savings
+ 60% reduction in call center volume
+ 24/7 passenger support
+~$1.8M annual cost savings
