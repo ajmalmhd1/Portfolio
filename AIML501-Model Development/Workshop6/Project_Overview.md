@@ -29,37 +29,39 @@ A HIPAA-compliant healthcare chatbot delivering accurate, real-time patient assi
 
 Key Capabilities:
 
-📅 Appointment scheduling & reminders
-💊 Medication guidance
-📝 Post-visit care instructions
-💳 Insurance & billing FAQs
+  Appointment scheduling & reminders
+  Medication guidance
+  Post-visit care instructions
+  Insurance & billing FAQs
 
 Impact:
 
-📉 60% reduction in support calls
-❤️ Improved patient engagement
-💰 ~$1.4M annual cost savings
-🧠 Architecture Overview
+ 60% reduction in support calls
+ Improved patient engagement
+ ~$1.4M annual cost savings
+ Architecture Overview
 
 Both systems follow a Retrieval-Augmented Generation (RAG) pipeline:
 
 User Query → Data Retrieval → Context Injection → LLM Response
-🔧 Core Components
+
+ Core Components
 Frontend: React / React Native
 Backend: FastAPI
 Vector DB: Pinecone
 LLMs: OpenAI / Anthropic Claude
 Cloud: AWS (S3, Redis, CloudWatch)
-🔍 Key Features
-🔎 Semantic Search — fast retrieval using embeddings
-🧠 Context-Aware Conversations — session-based memory
-🛡️ Guardrails & Safety Controls
+
+ Key Features
+Semantic Search — fast retrieval using embeddings
+Context-Aware Conversations — session-based memory
+Guardrails & Safety Controls
 Hallucination prevention
 Policy validation
 Escalation to human agents
-📊 Audit Logging & Monitoring
-⚡ Real-Time API Integration
-🔐 Compliance & Safety
+Audit Logging & Monitoring
+Real-Time API Integration
+Compliance & Safety
 Aviation (Blink Assist)
 Policy validation against airline data
 Real-time flight data verification
@@ -68,7 +70,7 @@ Healthcare (HealthBridge AI)
 HIPAA-compliant architecture
 PHI encryption & access control
 Medical response validation via trusted APIs
-📊 Data Sources
+ Data Sources
 Airline Chatbot
 Airline Operations APIs
 Booking systems (GDS)
