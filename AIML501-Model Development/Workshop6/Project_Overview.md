@@ -81,12 +81,12 @@ EHR systems (FHIR APIs)
 Clinical policy documents
 FDA / MedlinePlus APIs
 Medical knowledge sources
-📈 Evaluation & Accuracy
-✅ ≥92% accuracy target via A/B testing
-📌 100% source citation enforcement
-🔁 Continuous feedback loop
-🧪 Monthly red-team testing
-🚀 Getting Started
+Evaluation & Accuracy
+≥92% accuracy target via A/B testing
+ 100% source citation enforcement
+Continuous feedback loop
+ Monthly red-team testing
+ Getting Started
 Prerequisites
 Python 3.9+
 Node.js
