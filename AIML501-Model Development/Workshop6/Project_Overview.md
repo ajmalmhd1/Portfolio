@@ -53,8 +53,8 @@ LLMs: OpenAI / Anthropic Claude
 Cloud: AWS (S3, Redis, CloudWatch)
 
  Key Features
-Semantic Search — fast retrieval using embeddings
-Context-Aware Conversations — session-based memory
+Semantic Search- fast retrieval using embeddings
+Context-Aware Conversations- session-based memory
 Guardrails & Safety Controls
 Hallucination prevention
 Policy validation
