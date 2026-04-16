@@ -108,7 +108,18 @@ uvicorn app.main:app --reload
 
 # Frontend
 npm start
-🧩 Future Improvements
-🤖 Multi-modal support (voice + images)
-🌍 Multi-language capabilities
-📊 Advanced analytics dashboard
+Future Improvements
+Multi-modal support (voice + images)
+ Multi-language capabilities
+ Advanced analytics dashboard
+
+ Future Improvements
+ Multi-modal support (voice + images)
+Multi-language capabilities
+Advanced analytics dashboard
+Fine-tuned domain-specific LLMs
+
+Final Thoughts
+
+These projects demonstrate how Generative AI + RAG can transform customer support in high-stakes industries like aviation and healthcare—delivering scalable, accurate, and compliant AI systems.
+
