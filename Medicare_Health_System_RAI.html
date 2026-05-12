@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medicare Health System — Responsible AI Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ─── DESIGN TOKENS ─────────────────────────────────────── */
+  :root {
+    --burg:        #9B3045;
+    --burg-dark:   #7A2035;
+    --burg-deep:   #5E1828;
+    --burg-mid:    #B84060;
+    --burg-light:  #CC6880;
+    --burg-pale:   #F9EEF1;
+    --burg-tint:   #FDF5F7;
+    --gold:        #C9952A;
+    --gold-light:  #E8B84B;
+    --white:       #FFFFFF;
+    --off-white:   #FDFAFA;
+    --gray-100:    #F7F2F3;
+    --gray-200:    #EDE4E6;
+    --gray-400:    #BFA8AD;
+    --gray-600:    #7A5C62;
+    --gray-800:    #3D2328;
+    --slide-w:     1100px;
+    --slide-h:     618.75px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #c07080;
+    font-family: 'Source Sans 3', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+    gap: 0;
+  }
+
+  /* ─── NAV ───────────────────────────────────────────────── */
+  .deck-nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(155,48,69,0.96);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(201,149,42,0.35);
+    border-radius: 50px;
+    padding: 10px 22px;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .deck-nav button {
+    background: none;
+    border: none;
+    color: var(--gold-light);
+    font-size: 18px;
+    cursor: pointer;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .deck-nav button:hover { background: rgba(201,149,42,0.2); }
+  .deck-nav button:disabled { color: var(--gray-600); cursor: default; }
+  .slide-counter {
+    color: var(--white);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    min-width: 70px;
+    text-align: center;
+  }
+  .nav-dots {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .nav-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .nav-dot.active { background: var(--gold-light); width: 18px; border-radius: 4px; }
+
+  /* ─── SLIDE WRAPPER ─────────────────────────────────────── */
+  .deck { position: relative; width: var(--slide-w); }
+
+  .slide {
+    width: var(--slide-w);
+    min-height: var(--slide-h);
+    position: relative;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.7);
+  }
+  .slide.active { display: flex; }
+
+  /* ─── SLIDE LABEL ───────────────────────────────────────── */
+  .slide-label {
+    position: absolute;
+    top: 18px; right: 22px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.45;
+    z-index: 10;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SLIDE 1 — TITLE  (full redesign)
+  ═══════════════════════════════════════════════════════ */
+  #s1 {
+    background: var(--burg-dark);
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    min-height: var(--slide-h);
+  }
+
+  /* Layered background geometry */
+  #s1::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 80% at 80% 50%, rgba(184,64,96,0.35) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(201,149,42,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  /* Diagonal accent strip */
+  #s1 .s1-strip {
+    position: absolute;
+    top: 0; right: 0;
+    width: 340px; height: 100%;
+    background: linear-gradient(135deg, transparent 0%, rgba(155,48,69,0.45) 40%, rgba(122,32,53,0.7) 100%);
+    clip-path: polygon(18% 0%, 100% 0%, 100% 100%, 0% 100%);
+    pointer-events: none;
+  }
+  /* Decorative circle rings */
+  #s1 .s1-ring1 {
+    position: absolute;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,149,42,0.18);
+    right: -80px; top: -80px;
+    pointer-events: none;
+  }
+  #s1 .s1-ring2 {
+    position: absolute;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+    right: 10px; top: 10px;
+    pointer-events: none;
+  }
+  #s1 .s1-ring3 {
+    position: absolute;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(201,149,42,0.07);
+    right: 70px; top: 70px;
+    pointer-events: none;
+  }
+
+  /* Top nav bar */
+  #s1 .s1-topbar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 44px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  #s1 .s1-topbar .s1-logo {
+    display: flex; align-items: center; gap: 12px;
+  }
+  #s1 .s1-topbar .s1-logo .lw-top {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 900;
+    color: var(--white);
+  }
+  #s1 .s1-topbar .s1-logo .lw-bot {
+    font-size: 10px; font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  #s1 .s1-topbar .s1-badge {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(201,149,42,0.12);
+    border: 1px solid rgba(201,149,42,0.35);
+    border-radius: 20px;
+    padding: 5px 16px;
+  }
+
+  /* Centre hero content */
+  #s1 .s1-hero {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 44px 0 44px;
+  }
+  #s1 .s1-eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  #s1 .s1-eyebrow .line {
+    height: 2px; width: 36px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 2px;
+  }
+  #s1 .s1-eyebrow span {
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold-light);
+  }
+  #s1 .s1-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px; font-weight: 900;
+    color: var(--white);
+    line-height: 1.05;
+    margin-bottom: 10px;
+    max-width: 620px;
+  }
+  #s1 .s1-title em {
+    font-style: normal;
+    color: var(--gold-light);
+  }
+  #s1 .s1-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 400;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 22px;
+    letter-spacing: 0.5px;
+  }
+  #s1 .s1-divider {
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 2px;
+    margin-bottom: 22px;
+  }
+  #s1 .s1-tagline {
+    font-size: 15px;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.65;
+    max-width: 540px;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  /* TOC pills row */
+  #s1 .s1-toc {
+    display: flex; flex-wrap: wrap; gap: 9px;
+    margin-bottom: 0;
+  }
+  #s1 .s1-toc-chip {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 14px; font-weight: 600;
+    color: var(--white);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 20px;
+    padding: 7px 16px;
+    letter-spacing: 0.3px;
+    transition: background 0.2s;
+  }
+  #s1 .s1-toc-chip:hover { background: rgba(255,255,255,0.18); }
+  #s1 .s1-toc-chip .chip-num {
+    font-size: 11px; font-weight: 800;
+    color: var(--gold-light);
+    background: rgba(201,149,42,0.2);
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Bottom meta bar */
+  #s1 .s1-footer {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 44px;
+    background: rgba(0,0,0,0.25);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  #s1 .s1-footer .s1-meta {
+    display: flex; align-items: center; gap: 20px;
+  }
+  #s1 .s1-footer .s1-meta-item {
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  #s1 .s1-footer .s1-meta-item .mi-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--gold-light); opacity: 0.8;
+  }
+  #s1 .s1-footer .s1-meta-item .mi-value {
+    font-size: 14px; font-weight: 600;
+    color: rgba(255,255,255,0.9);
+  }
+  #s1 .s1-footer .s1-meta-sep {
+    width: 1px; height: 28px;
+    background: rgba(255,255,255,0.15);
+  }
+  #s1 .s1-footer .s1-slide-no {
+    font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 2px;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SHARED HEADER
+  ═══════════════════════════════════════════════════════ */
+  .slide-header {
+    background: var(--burg-dark);
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-bottom: 3px solid var(--gold);
+  }
+  .slide-header .sh-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.5px;
+  }
+  .slide-header .sh-org {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SLIDE 2 — COMPANY OVERVIEW
+  ═══════════════════════════════════════════════════════ */
+  #s2 { background: var(--gray-100); }
+  #s2 .body { display: flex; flex: 1; gap: 0; }
+
+  #s2 .profile-col {
+    width: 310px;
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 28px;
+    flex-shrink: 0;
+  }
+  #s2 .profile-icon {
+    width: 72px; height: 72px;
+    background: var(--burg);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    margin-bottom: 14px;
+  }
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--burg-dark);
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  #s2 .profile-table { width: 100%; border-collapse: collapse; }
+  #s2 .profile-table tr:nth-child(odd) td:first-child { background: var(--burg); }
+  #s2 .profile-table tr:nth-child(even) td:first-child { background: var(--burg-mid); }
+  #s2 .profile-table td {
+    padding: 9px 10px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  #s2 .profile-table td:first-child {
+    color: var(--white);
+    font-weight: 700;
+    width: 105px;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+  }
+  #s2 .profile-table td:last-child { color: var(--gray-800); font-weight: 600; }
+
+  #s2 .info-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  #s2 .mission-box {
+    background: var(--burg);
+    padding: 24px 32px;
+    flex-shrink: 0;
+  }
+  #s2 .mission-box .label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  #s2 .mission-box p {
+    font-size: 16px;
+    color: var(--white);
+    font-style: italic;
+    line-height: 1.55;
+    font-weight: 300;
+  }
+  #s2 .about-box {
+    flex: 1;
+    background: var(--white);
+    padding: 24px 32px;
+    border-top: 3px solid var(--gold);
+  }
+  #s2 .about-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    color: var(--burg-dark);
+    margin-bottom: 12px;
+  }
+  #s2 .about-box p {
+    font-size: 14px;
+    color: var(--gray-800);
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SLIDE 3 — USE CASES
+  ═══════════════════════════════════════════════════════ */
+  #s3 { background: var(--gray-100); }
+  #s3 .grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1px;
+    background: var(--gray-200);
+  }
+  .uc-card {
+    background: var(--white);
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .uc-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+  .uc-card.c1::before { background: var(--burg); }
+  .uc-card.c2::before { background: var(--burg-mid); }
+  .uc-card.c3::before { background: var(--gold); }
+  .uc-card.c4::before { background: var(--burg-light); }
+
+  .uc-card .uc-header {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .uc-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .c1 .uc-icon { background: var(--burg-pale); }
+  .c2 .uc-icon { background: #F5EAF0; }
+  .c3 .uc-icon { background: #FDF5E6; }
+  .c4 .uc-icon { background: #F5EDF0; }
+
+  .uc-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--burg-dark);
+    line-height: 1.2;
+  }
+  .uc-card p {
+    font-size: 14px;
+    color: var(--gray-600);
+    line-height: 1.6;
+    flex: 1;
+  }
+  .uc-card .uc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px solid var(--gray-200);
+    gap: 10px;
+  }
+  .uc-risk {
+    font-size: 12px;
+    color: #B84040;
+    line-height: 1.4;
+    flex: 1;
+  }
+  .uc-risk strong { font-weight: 700; }
+  .uc-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 5px 11px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .c1 .uc-badge { background: var(--burg); color: var(--white); }
+  .c2 .uc-badge { background: var(--burg-mid); color: var(--white); }
+  .c3 .uc-badge { background: var(--gold); color: var(--white); }
+  .c4 .uc-badge { background: var(--burg-light); color: var(--white); }
+
+  /* ═══════════════════════════════════════════════════════
+     SLIDE 4 — PRINCIPLES COMPARISON
+  ═══════════════════════════════════════════════════════ */
+  #s4 { background: var(--white); }
+  #s4 .body { flex: 1; padding: 20px 36px 14px; display: flex; flex-direction: column; }
+  .comp-table { width: 100%; border-collapse: collapse; flex: 1; }
+  .comp-table th {
+    padding: 11px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-align: center;
+    color: var(--white);
+    border-right: 2px solid var(--white);
+  }
+  .comp-table th:first-child {
+    text-align: left;
+    background: var(--gray-800);
+    border-radius: 4px 0 0 4px;
+  }
+  .th-google    { background: var(--burg); }
+  .th-microsoft { background: var(--burg-mid); }
+  .th-ibm       { background: #5E1A28; }
+  .th-salesforce{ background: var(--burg-light); }
+  .th-amazon    { background: var(--gold); color: var(--burg-dark) !important; }
+
+  .comp-table td {
+    padding: 10px 12px;
+    font-size: 14px;
+    text-align: center;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-800);
+  }
+  .comp-table td:first-child {
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--gray-800);
+    background: var(--gray-100);
+  }
+  .comp-table tr:nth-child(odd) td:first-child { background: var(--gray-100); }
+  .comp-table tr:nth-child(even) td:first-child { background: var(--burg-tint); }
+  .comp-table tr:nth-child(even) td { background: var(--burg-tint); }
+
+  .check-circle {
+    display: inline-flex;
+    width: 26px; height: 26px;
+    background: var(--burg);
+    border-radius: 50%;
+    align-items: center; justify-content: center;
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .dash { color: var(--gray-400); font-size: 18px; font-weight: 300; }
+
+  .comp-source {
+    font-size: 11px;
+    color: var(--gray-400);
+    font-style: italic;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SLIDE 5 — RECOMMENDED PRINCIPLES
+  ═══════════════════════════════════════════════════════ */
+  #s5 { background: var(--gray-100); }
+  #s5 .grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 16px 36px 10px;
+  }
+  .rp-card {
+    background: var(--white);
+    border-radius: 6px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left: 4px solid var(--burg);
+    box-shadow: 0 2px 8px rgba(107,25,41,0.07);
+  }
+  .rp-card:nth-child(even) { border-left-color: var(--burg-mid); }
+  .rp-card:nth-child(3n)   { border-left-color: var(--gold); }
+  .rp-card .rp-header { display: flex; align-items: center; gap: 10px; }
+  .rp-card .rp-icon {
+    font-size: 20px;
+    width: 36px; height: 36px;
+    background: var(--burg-pale);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .rp-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--burg-dark);
+  }
+  .rp-card p { font-size: 13px; color: var(--gray-600); line-height: 1.55; }
+  .rp-card .included-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #2D7A3A;
+    background: #E8F5EA;
+    border-radius: 3px;
+    padding: 3px 10px;
+    text-transform: uppercase;
+    width: fit-content;
+  }
+  #s5 .footnote {
+    font-size: 12px;
+    color: var(--gray-400);
+    font-style: italic;
+    text-align: center;
+    padding: 8px 36px 10px;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SLIDE 6 — ETHICS STATEMENT
+  ═══════════════════════════════════════════════════════ */
+  #s6 {
+    background: var(--burg-deep);
+    position: relative;
+    overflow: hidden;
+  }
+  #s6::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,149,42,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  #s6::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(107,25,41,0.4) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  #s6 .slide-header { background: rgba(0,0,0,0.3); border-bottom-color: var(--gold); }
+  #s6 .body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+    padding: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .es-item {
+    background: rgba(74,15,26,0.6);
+    padding: 18px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background 0.2s;
+  }
+  .es-item:hover { background: rgba(107,25,41,0.7); }
+  .es-item .es-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .es-item .es-label::before {
+    content: '';
+    width: 18px; height: 2px;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+  .es-item p {
+    font-size: 13px;
+    color: rgba(253,250,250,0.88);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  #s6 .footer-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 9px 36px;
+    background: rgba(0,0,0,0.35);
+    font-size: 12px;
+    color: rgba(191,168,173,0.75);
+    font-style: italic;
+    text-align: center;
+    z-index: 2;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SLIDE 7 — REFLECTION
+  ═══════════════════════════════════════════════════════ */
+  #s7 { background: var(--gray-100); }
+  #s7 .body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 36px 16px;
+  }
+  .ref-card {
+    background: var(--white);
+    border-radius: 5px;
+    padding: 16px 20px;
+    flex: 1;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    box-shadow: 0 1px 4px rgba(107,25,41,0.06);
+    border-left: 4px solid var(--burg);
+  }
+  .ref-card:nth-child(even) { border-left-color: var(--gold); }
+  .ref-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--burg-pale);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+    text-align: center;
+  }
+  .ref-card:nth-child(even) .ref-num { color: #FDF5E6; }
+  .ref-content { flex: 1; }
+  .ref-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--burg-dark);
+    margin-bottom: 6px;
+  }
+  .ref-card:nth-child(even) .ref-content h3 { color: var(--gray-800); }
+  .ref-content p {
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.6;
+  }
+
+  /* ─── LOGO ──────────────────────────────────────────────── */
+  .mhs-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .mhs-logo svg { flex-shrink: 0; }
+  .mhs-logo .logo-wordmark {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  .mhs-logo .logo-wordmark .lw-top {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: 0.5px;
+  }
+  .mhs-logo .logo-wordmark .lw-bot {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  /* Large logo variant for title slide */
+  .mhs-logo.large .logo-wordmark .lw-top { font-size: 24px; }
+  .mhs-logo.large .logo-wordmark .lw-bot { font-size: 14px; }
+
+  /* ─── TRANSITIONS ───────────────────────────────────────── */
+  .slide { animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── PRINT ─────────────────────────────────────────────── */
+  @media print {
+    body { background: white; padding: 0; }
+    .deck-nav { display: none; }
+    .slide { display: flex !important; page-break-after: always; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- ══════════════ SLIDE 1 — TITLE ══════════════ -->
+  <div class="slide active" id="s1">
+
+    <!-- Background layers -->
+    <div class="s1-strip"></div>
+    <div class="s1-ring1"></div>
+    <div class="s1-ring2"></div>
+    <div class="s1-ring3"></div>
+
+    <!-- Top bar: logo + badge -->
+    <div class="s1-topbar">
+      <div class="s1-logo mhs-logo">
+        <svg width="44" height="44" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="68" height="68" rx="14" fill="#B84060"/>
+          <rect x="28" y="12" width="12" height="44" rx="4" fill="white"/>
+          <rect x="12" y="28" width="44" height="12" rx="4" fill="white"/>
+          <path d="M34 37.5C34 37.5 28 33 28 29.5C28 27.4 29.8 26 32 26.8C33 27.2 34 28 34 28C34 28 35 27.2 36 26.8C38.2 26 40 27.4 40 29.5C40 33 34 37.5Z" fill="rgba(255,255,255,0.35)"/>
+        </svg>
+        <div class="logo-wordmark">
+          <span class="lw-top">Medicare Health System</span>
+          <span class="lw-bot">Plano, Texas · 2026</span>
+        </div>
+      </div>
+      <div class="s1-badge">AI / ML Graduate Workshop · 2026</div>
+    </div>
+
+    <!-- Hero content -->
+    <div class="s1-hero">
+      <div class="s1-eyebrow">
+        <div class="line"></div>
+        <span>Responsible Artificial Intelligence</span>
+      </div>
+
+      <div class="s1-title">AI Ethics &amp; <em>Governance</em><br>Framework</div>
+      <div class="s1-subtitle">Building Responsible AI for Clinical Care</div>
+      <div class="s1-divider"></div>
+      <div class="s1-tagline">Advancing trust, equity, and transparency in every AI system we build — from predictive diagnostics to ambient documentation — so that patients and clinicians can rely on our technology with confidence.</div>
+
+      <!-- Numbered TOC chips -->
+      <div class="s1-toc">
+        <span class="s1-toc-chip"><span class="chip-num">1</span>Company Overview</span>
+        <span class="s1-toc-chip"><span class="chip-num">2</span>AI Use Cases</span>
+        <span class="s1-toc-chip"><span class="chip-num">3</span>Principles Comparison</span>
+        <span class="s1-toc-chip"><span class="chip-num">4</span>Recommended Principles</span>
+        <span class="s1-toc-chip"><span class="chip-num">5</span>Ethics Statement</span>
+        <span class="s1-toc-chip"><span class="chip-num">6</span>Reflection</span>
+      </div>
+    </div>
+
+    <!-- Footer meta row -->
+    <div class="s1-footer">
+      <div class="s1-meta">
+        <div class="s1-meta-item">
+          <span class="mi-label">Industry</span>
+          <span class="mi-value">Healthcare Technology</span>
+        </div>
+        <div class="s1-meta-sep"></div>
+        <div class="s1-meta-item">
+          <span class="mi-label">Headquarters</span>
+          <span class="mi-value">Plano, Texas</span>
+        </div>
+        <div class="s1-meta-sep"></div>
+        <div class="s1-meta-item">
+          <span class="mi-label">Program</span>
+          <span class="mi-value">AI/ML Graduate Workshop — Module 1</span>
+        </div>
+        <div class="s1-meta-sep"></div>
+        <div class="s1-meta-item">
+          <span class="mi-label">Year</span>
+          <span class="mi-value">2026</span>
+        </div>
+      </div>
+      <div class="s1-slide-no">01 / 07</div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════ SLIDE 2 — COMPANY OVERVIEW ══════════════ -->
+  <div class="slide" id="s2">
+    <div class="slide-header">
+      <div class="sh-title">Company Overview</div>
+      <div class="mhs-logo">
+        <svg width="34" height="34" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="68" height="68" rx="14" fill="#B84060"/><rect x="28" y="12" width="12" height="44" rx="4" fill="white"/><rect x="12" y="28" width="44" height="12" rx="4" fill="white"/><path d="M34 37.5 C34 37.5 28 33 28 29.5 C28 27.4 29.8 26 32 26.8 C33 27.2 34 28 34 28 C34 28 35 27.2 36 26.8 C38.2 26 40 27.4 40 29.5 C40 33 34 37.5 34 37.5Z" fill="#B84060"/></svg>
+        <div class="logo-wordmark"><span class="lw-top">Medicare Health System</span><span class="lw-bot">Responsible AI Framework</span></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="profile-col">
+        <div class="profile-icon" style="background:transparent;">
+          <svg width="64" height="64" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="68" height="68" rx="14" fill="#9B3045"/><rect x="28" y="12" width="12" height="44" rx="4" fill="white"/><rect x="12" y="28" width="44" height="12" rx="4" fill="white"/><path d="M34 37.5 C34 37.5 28 33 28 29.5 C28 27.4 29.8 26 32 26.8 C33 27.2 34 28 34 28 C34 28 35 27.2 36 26.8 C38.2 26 40 27.4 40 29.5 C40 33 34 37.5 34 37.5Z" fill="rgba(255,255,255,0.4)"/></svg>
+        </div>
+        <div class="profile-name">Medicare Health System</div>
+        <table class="profile-table">
+          <tr><td>Founded</td><td>2016, Plano TX</td></tr>
+          <tr><td>Employees</td><td>4,800+</td></tr>
+          <tr><td>Revenue</td><td>$1.2B (2026)</td></tr>
+          <tr><td>Clients</td><td>320 health systems</td></tr>
+          <tr><td>Coverage</td><td>U.S., Canada, EU</td></tr>
+          <tr><td>Stock</td><td>MVHS (NASDAQ)</td></tr>
+        </table>
+      </div>
+      <div class="info-col">
+        <div class="mission-box">
+          <div class="label">Our Mission</div>
+          <p>To harness the power of AI responsibly—delivering clinically validated, equitable, and transparent healthcare intelligence that empowers providers and protects patients.</p>
+        </div>
+        <div class="about-box">
+          <h3>About Medicare Health System</h3>
+          <p>Medicare Health System is a publicly traded health-tech company headquartered in Plano, Texas, providing AI-powered clinical decision support, predictive analytics, and administrative automation to large hospital networks and integrated delivery systems.</p>
+          <p>Operating across 47 states and three countries, our SaaS platforms process over 2 million patient records daily. Our flagship product, ClinIQ™, is deployed in 12 of the top 25 U.S. health systems.</p>
+          <p>With a dedicated AI Ethics & Governance Office (AEGO) of 35 professionals and an external Clinical AI Advisory Board, Medicare Health System is positioned to build a mature Responsible AI (RAI) program in 2026 and beyond.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-label" style="color:var(--gray-400)">02 / 07</div>
+  </div>
+
+  <!-- ══════════════ SLIDE 3 — AI USE CASES ══════════════ -->
+  <div class="slide" id="s3">
+    <div class="slide-header">
+      <div class="sh-title">AI Use Cases Under Consideration</div>
+      <div class="mhs-logo">
+        <svg width="34" height="34" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="68" height="68" rx="14" fill="#B84060"/><rect x="28" y="12" width="12" height="44" rx="4" fill="white"/><rect x="12" y="28" width="44" height="12" rx="4" fill="white"/><path d="M34 37.5 C34 37.5 28 33 28 29.5 C28 27.4 29.8 26 32 26.8 C33 27.2 34 28 34 28 C34 28 35 27.2 36 26.8 C38.2 26 40 27.4 40 29.5 C40 33 34 37.5 34 37.5Z" fill="#B84060"/></svg>
+        <div class="logo-wordmark"><span class="lw-top">Medicare Health System</span><span class="lw-bot">Responsible AI Framework</span></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="uc-card c1">
+        <div class="uc-header">
+          <div class="uc-icon">🧠</div>
+          <h3>1. Predictive Sepsis Detection</h3>
+        </div>
+        <p>An ML model that continuously analyzes EHR vitals, labs, and nursing notes to issue early-warning alerts for sepsis up to 6 hours before clinical deterioration—reducing ICU mortality by an estimated 18%.</p>
+        <div class="uc-footer">
+          <div class="uc-risk"><strong>Risk:</strong> Algorithmic bias across demographic groups; alert fatigue; clinician over-reliance</div>
+          <div class="uc-badge">Pilot — 3 systems</div>
+        </div>
+      </div>
+      <div class="uc-card c2">
+        <div class="uc-header">
+          <div class="uc-icon">👁️</div>
+          <h3>2. AI-Assisted Radiology Triage</h3>
+        </div>
+        <p>Computer vision model that reviews chest X-rays and CT scans to flag critical findings (pulmonary embolism, pneumothorax) and prioritize radiologist worklists, cutting read time by ~30%.</p>
+        <div class="uc-footer">
+          <div class="uc-risk"><strong>Risk:</strong> Performance disparities on underrepresented populations; liability if AI miss goes undetected</div>
+          <div class="uc-badge">510(k) Pending</div>
+        </div>
+      </div>
+      <div class="uc-card c3">
+        <div class="uc-header">
+          <div class="uc-icon">📊</div>
+          <h3>3. Readmission Risk Stratification</h3>
+        </div>
+        <p>Gradient-boosting model scoring patients at discharge for 30-day readmission probability. Used by care managers to allocate post-acute follow-up resources and reduce avoidable readmissions.</p>
+        <div class="uc-footer">
+          <div class="uc-risk"><strong>Risk:</strong> May encode historical socioeconomic inequities; risk of reduced care for low-score patients</div>
+          <div class="uc-badge">Production — 85 hospitals</div>
+        </div>
+      </div>
+      <div class="uc-card c4">
+        <div class="uc-header">
+          <div class="uc-icon">🎙️</div>
+          <h3>4. Ambient Clinical Documentation</h3>
+        </div>
+        <p>LLM-based system using ambient audio from patient-provider encounters to auto-draft structured SOAP notes, saving physicians 1.5–2 hours of documentation time per shift.</p>
+        <div class="uc-footer">
+          <div class="uc-risk"><strong>Risk:</strong> Patient consent; PHI privacy; model hallucination in clinical notes; HIPAA / 21st Century Cures</div>
+          <div class="uc-badge">Ethics Review</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-label" style="color:var(--gray-400)">03 / 07</div>
+  </div>
+
+  <!-- ══════════════ SLIDE 4 — PRINCIPLES COMPARISON ══════════════ -->
+  <div class="slide" id="s4">
+    <div class="slide-header">
+      <div class="sh-title">AI Ethical Principles — Five Major Companies</div>
+      <div class="mhs-logo">
+        <svg width="34" height="34" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="68" height="68" rx="14" fill="#B84060"/><rect x="28" y="12" width="12" height="44" rx="4" fill="white"/><rect x="12" y="28" width="44" height="12" rx="4" fill="white"/><path d="M34 37.5 C34 37.5 28 33 28 29.5 C28 27.4 29.8 26 32 26.8 C33 27.2 34 28 34 28 C34 28 35 27.2 36 26.8 C38.2 26 40 27.4 40 29.5 C40 33 34 37.5 34 37.5Z" fill="#B84060"/></svg>
+        <div class="logo-wordmark"><span class="lw-top">Medicare Health System</span><span class="lw-bot">Responsible AI Framework</span></div>
+      </div>
+    </div>
+    <div class="body">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th style="width:210px">Principle</th>
+            <th class="th-google">Google</th>
+            <th class="th-microsoft">Microsoft</th>
+            <th class="th-ibm">IBM</th>
+            <th class="th-salesforce">Salesforce</th>
+            <th class="th-amazon">Amazon AWS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Fairness &amp; Equity</td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+          </tr>
+          <tr>
+            <td>Transparency / Explainability</td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+          </tr>
+          <tr>
+            <td>Privacy &amp; Security</td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+          </tr>
+          <tr>
+            <td>Safety &amp; Reliability</td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="dash">—</span></td>
+          </tr>
+          <tr>
+            <td>Accountability</td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+          </tr>
+          <tr>
+            <td>Human Oversight</td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="dash">—</span></td>
+            <td><span class="dash">—</span></td>
+            <td><span class="dash">—</span></td>
+          </tr>
+          <tr>
+            <td>Inclusiveness</td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="dash">—</span></td>
+          </tr>
+          <tr>
+            <td>Sustainability</td>
+            <td><span class="dash">—</span></td>
+            <td><span class="dash">—</span></td>
+            <td><span class="dash">—</span></td>
+            <td><span class="check-circle">✓</span></td>
+            <td><span class="dash">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="comp-source">Sources: Google PAIR / AI Principles 2023 · Microsoft Responsible AI Standard v2 · IBM AI Ethics · Salesforce Trusted AI · AWS Responsible AI</div>
+    </div>
+    <div class="slide-label" style="color:var(--gray-400)">04 / 07</div>
+  </div>
+
+  <!-- ══════════════ SLIDE 5 — RECOMMENDED PRINCIPLES ══════════════ -->
+  <div class="slide" id="s5">
+    <div class="slide-header">
+      <div class="sh-title">Medicare Health System's Recommended AI Ethical Principles</div>
+      <div class="mhs-logo">
+        <svg width="34" height="34" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="68" height="68" rx="14" fill="#B84060"/><rect x="28" y="12" width="12" height="44" rx="4" fill="white"/><rect x="12" y="28" width="44" height="12" rx="4" fill="white"/><path d="M34 37.5 C34 37.5 28 33 28 29.5 C28 27.4 29.8 26 32 26.8 C33 27.2 34 28 34 28 C34 28 35 27.2 36 26.8 C38.2 26 40 27.4 40 29.5 C40 33 34 37.5 34 37.5Z" fill="#B84060"/></svg>
+        <div class="logo-wordmark"><span class="lw-top">Medicare Health System</span><span class="lw-bot">Responsible AI Framework</span></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="rp-card">
+        <div class="rp-header">
+          <div class="rp-icon">⚖️</div>
+          <h3>Fairness &amp; Equity</h3>
+        </div>
+        <span class="included-tag">✓ Included</span>
+        <p>Healthcare AI that underperforms for minority groups compounds existing health disparities. Fairness metrics must be mandatory at every model development stage.</p>
+      </div>
+      <div class="rp-card">
+        <div class="rp-header">
+          <div class="rp-icon">👁️</div>
+          <h3>Transparency &amp; Explainability</h3>
+        </div>
+        <span class="included-tag">✓ Included</span>
+        <p>Clinicians must understand why an AI made a recommendation to accept, override, or escalate it. Black-box models are clinically inappropriate and legally risky.</p>
+      </div>
+      <div class="rp-card">
+        <div class="rp-header">
+          <div class="rp-icon">🔒</div>
+          <h3>Privacy &amp; Data Security</h3>
+        </div>
+        <span class="included-tag">✓ Included</span>
+        <p>PHI is the most sensitive personal data. HIPAA compliance is a floor, not a ceiling. We must exceed it with data minimization and de-identification standards.</p>
+      </div>
+      <div class="rp-card">
+        <div class="rp-header">
+          <div class="rp-icon">🛡️</div>
+          <h3>Safety &amp; Clinical Reliability</h3>
+        </div>
+        <span class="included-tag">✓ Included</span>
+        <p>Healthcare AI errors can harm or kill patients. Rigorous clinical validation, real-world performance monitoring, and clear fail-safes are non-negotiable.</p>
+      </div>
+      <div class="rp-card">
+        <div class="rp-header">
+          <div class="rp-icon">🤝</div>
+          <h3>Accountability &amp; Governance</h3>
+        </div>
+        <span class="included-tag">✓ Included</span>
+        <p>Every AI system must have a traceable institutional owner. The AEGO and Clinical Advisory Board formalize responsibility chains before any deployment.</p>
+      </div>
+      <div class="rp-card">
+        <div class="rp-header">
+          <div class="rp-icon">👥</div>
+          <h3>Human Oversight &amp; Control</h3>
+        </div>
+        <span class="included-tag">✓ Included</span>
+        <p>AI augments; it does not replace. Clinicians retain final decision-making authority in all patient-facing applications, as also required by FDA SaMD guidance.</p>
+      </div>
+    </div>
+    <div class="footnote">NOT INCLUDED: 'Sustainability/Environmental Impact' — while important at scale, our immediate RAI priorities are patient safety and clinical equity. Will be added in Phase 2 (2027).</div>
+    <div class="slide-label" style="color:var(--gray-400)">05 / 07</div>
+  </div>
+
+  <!-- ══════════════ SLIDE 6 — ETHICS STATEMENT ══════════════ -->
+  <div class="slide" id="s6">
+    <div class="slide-header">
+      <div class="sh-title">Medicare Health System — AI Ethics Statement</div>
+      <div class="mhs-logo">
+        <svg width="34" height="34" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="68" height="68" rx="14" fill="#B84060"/><rect x="28" y="12" width="12" height="44" rx="4" fill="white"/><rect x="12" y="28" width="44" height="12" rx="4" fill="white"/><path d="M34 37.5 C34 37.5 28 33 28 29.5 C28 27.4 29.8 26 32 26.8 C33 27.2 34 28 34 28 C34 28 35 27.2 36 26.8 C38.2 26 40 27.4 40 29.5 C40 33 34 37.5 34 37.5Z" fill="#B84060"/></svg>
+        <div class="logo-wordmark"><span class="lw-top">Medicare Health System</span><span class="lw-bot" style="color:var(--gold-light)">Official Policy Document</span></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="es-item">
+        <div class="es-label">Fairness &amp; Equity</div>
+        <p>We commit to developing and deploying AI systems that perform equitably across all patient populations—regardless of race, ethnicity, sex, age, socioeconomic status, or disability. We will measure, monitor, and mitigate demographic performance gaps in every model we release.</p>
+      </div>
+      <div class="es-item">
+        <div class="es-label">Transparency &amp; Explainability</div>
+        <p>Our AI systems will provide clinically actionable explanations for their outputs. We will document model design, training data, known limitations, and validation results in accessible Model Cards shared with all clinical partners.</p>
+      </div>
+      <div class="es-item">
+        <div class="es-label">Privacy &amp; Data Security</div>
+        <p>We will collect only the minimum necessary patient data, apply rigorous de-identification standards, and implement technical and organizational safeguards that exceed HIPAA requirements. Patients will have clear rights regarding their data.</p>
+      </div>
+      <div class="es-item">
+        <div class="es-label">Safety &amp; Clinical Reliability</div>
+        <p>No AI model will be deployed in clinical care without prospective validation on diverse, real-world populations. We will monitor performance continuously and will suspend or retrain any system that exhibits degradation in safety-critical metrics.</p>
+      </div>
+      <div class="es-item">
+        <div class="es-label">Accountability &amp; Governance</div>
+        <p>Clear institutional accountability for every AI system is established before deployment. Our AEGO conducts mandatory reviews for all high-risk applications, and our Clinical Advisory Board provides independent clinical and ethical oversight.</p>
+      </div>
+      <div class="es-item">
+        <div class="es-label">Human Oversight &amp; Control</div>
+        <p>AI at Medicare Health System augments—it never replaces—clinical judgment. Clinicians retain final decision-making authority in all patient-facing applications, and every system includes clear mechanisms for human override and escalation.</p>
+      </div>
+    </div>
+    <div class="footer-bar">Adopted by the Medicare Health System Board of Directors · AI Ethics &amp; Governance Office · Effective January 2026</div>
+    <div class="slide-label" style="color:rgba(191,168,173,0.4)">06 / 07</div>
+  </div>
+
+  <!-- ══════════════ SLIDE 7 — REFLECTION ══════════════ -->
+  <div class="slide" id="s7">
+    <div class="slide-header">
+      <div class="sh-title">Personal Reflection — Workshop 1</div>
+      <div class="mhs-logo">
+        <svg width="34" height="34" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="68" height="68" rx="14" fill="#B84060"/><rect x="28" y="12" width="12" height="44" rx="4" fill="white"/><rect x="12" y="28" width="44" height="12" rx="4" fill="white"/><path d="M34 37.5 C34 37.5 28 33 28 29.5 C28 27.4 29.8 26 32 26.8 C33 27.2 34 28 34 28 C34 28 35 27.2 36 26.8 C38.2 26 40 27.4 40 29.5 C40 33 34 37.5 34 37.5Z" fill="#B84060"/></svg>
+        <div class="logo-wordmark"><span class="lw-top">Medicare Health System</span><span class="lw-bot">Responsible AI Framework</span></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="ref-card">
+        <div class="ref-num">1</div>
+        <div class="ref-content">
+          <h3>Difficulty: Making Principles Concrete &amp; Testable</h3>
+          <p>The biggest challenge was avoiding vague language. It is easy to say "we value fairness," but Chapter 5 of Ethical Machines reminded me that a principle is only meaningful if it is testable. For our sepsis model, "fairness" must translate into specific demographic parity thresholds—that level of specificity feels hard to commit to upfront without full technical scoping.</p>
+        </div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-num">2</div>
+        <div class="ref-content">
+          <h3>Open Question: Whose Definition of Fairness?</h3>
+          <p>Several fairness definitions (demographic parity, equalized odds, individual fairness) are mathematically incompatible. In healthcare, which should be optimized—equal false-positive rates across groups, or equal positive predictive value? The DoD RAI Strategy does not resolve this; it may require case-by-case deliberation with clinical and patient stakeholders.</p>
+        </div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-num">3</div>
+        <div class="ref-content">
+          <h3>Tension: Transparency vs. Intellectual Property Protection</h3>
+          <p>How much should a Model Card disclose? Full transparency benefits clinical users, but proprietary training data and model architectures represent significant R&amp;D investment. The DoD strategy (pp. 12–15) suggests "auditable by designated parties"—a middle ground between full openness and opacity that I found useful but underspecified.</p>
+        </div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-num">4</div>
+        <div class="ref-content">
+          <h3>Insight: Human Oversight Is a Design Problem, Not a Policy Problem</h3>
+          <p>Research on automation bias shows humans often defer to confident-seeming AI even when it is wrong. Writing a meaningful human oversight principle requires designing workflows and interface affordances, not just drafting policy language. This gap between principle and practice was the most surprising insight from the readings.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-label" style="color:var(--gray-400)">07 / 07</div>
+  </div>
+
+</div><!-- .deck -->
+
+<!-- ─── NAVIGATION ─── -->
+<nav class="deck-nav">
+  <button id="btn-prev" onclick="navigate(-1)" disabled>&#8592;</button>
+  <div class="nav-dots" id="dots"></div>
+  <div class="slide-counter" id="counter">1 / 7</div>
+  <button id="btn-next" onclick="navigate(1)">&#8594;</button>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Go to slide ' + (i+1));
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = Math.max(0, Math.min(n, total - 1));
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+    document.getElementById('counter').textContent = (current+1) + ' / ' + total;
+    document.getElementById('btn-prev').disabled = current === 0;
+    document.getElementById('btn-next').disabled = current === total - 1;
+  }
+
+  function navigate(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+  });
+</script>
+</body>
+</html>
