@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAI Governance Framework — Medicare Health System</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy:     #0B1F3A;
+    --navy2:    #142D52;
+    --teal:     #0A7E68;
+    --teal-lt:  #D6F0EB;
+    --teal-md:  #3DAF97;
+    --gold:     #B87D1A;
+    --gold-lt:  #FBF0DC;
+    --gold-md:  #D4A44C;
+    --slate:    #374151;
+    --slate-lt: #6B7280;
+    --smoke:    #F3F4F6;
+    --border:   #D1D5DB;
+    --white:    #FFFFFF;
+    --red:      #B91C1C;
+    --red-lt:   #FEE2E2;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                 "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--navy);
+    background: var(--smoke);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
+    text-rendering: geometricPrecision;
+  }
+
+  h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; line-height: 1.15; }
+  h2 { font-size: 1.2rem; font-weight: 700; color: var(--navy); }
+  h3 { font-size: 0.975rem; font-weight: 700; color: var(--navy); line-height: 1.35; }
+  p  { font-size: 0.9375rem; color: var(--slate); line-height: 1.7; }
+  strong { font-weight: 700; color: var(--navy); }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; width: 100%; z-index: 999;
+    background: var(--navy);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+    border-bottom: 3px solid var(--teal);
+    box-shadow: 0 2px 16px rgba(0,0,0,.3);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; }
+  .nav-logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, serif; font-weight: 700; color: #fff; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .nav-title { color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 0.2px; }
+  .nav-links { display: flex; gap: 2px; }
+  .nav-links a {
+    color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600;
+    text-decoration: none; padding: 5px 11px; border-radius: 5px; transition: all .15s;
+  }
+  .nav-links a:hover  { color: #fff; background: rgba(255,255,255,.12); }
+  .nav-links a.active { color: #fff; background: rgba(255,255,255,.18); }
+
+  /* ── SLIDES ── */
+  .slide {
+    display: none; min-height: 100vh;
+    padding: 88px 2.5rem 90px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+
+  /* ── COVER ── */
+  #slide-0 {
+    background: var(--navy); max-width: 100%;
+    padding: 0 3.5rem; display: none;
+    align-items: flex-start; justify-content: center;
+    flex-direction: column; min-height: 100vh;
+  }
+  #slide-0.active { display: flex; }
+  .cover-inner { max-width: 800px; padding: 80px 0 60px; }
+  .cover-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--teal-md); margin-bottom: 14px;
+  }
+  .cover-title {
+    font-family: Georgia, serif; font-weight: 700;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    color: #fff; line-height: 1.12; margin-bottom: 20px;
+  }
+  .cover-sub {
+    font-size: 1rem; color: rgba(255,255,255,0.75);
+    line-height: 1.75; max-width: 640px; margin-bottom: 28px;
+  }
+  .cover-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 36px; }
+  .chip {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+    padding: 4px 13px; border-radius: 20px;
+    background: rgba(10,126,104,.28); color: #5ED4BC;
+    border: 1px solid rgba(10,126,104,.5);
+  }
+  .chip.gold { background: rgba(184,125,26,.22); color: #D4A44C; border-color: rgba(184,125,26,.45); }
+  .cover-meta { display: flex; gap: 2.5rem; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); }
+  .cover-meta-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 4px; }
+  .cover-meta-val { font-size: 13px; font-weight: 600; color: #fff; }
+
+  /* ── SLIDE HEADER ── */
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 8px;
+  }
+  .slide-title { font-size: clamp(1.8rem, 3.5vw, 2.7rem); color: var(--navy); margin-bottom: 10px; }
+  .accent-bar { width: 44px; height: 4px; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius: 2px; margin-bottom: 16px; }
+  .lead { font-size: 0.9375rem; color: var(--slate); line-height: 1.75; max-width: 720px; margin-bottom: 28px; }
+
+  /* ── CARDS ── */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--white); border-radius: 12px; border: 1px solid var(--border);
+    padding: 18px 20px 16px; transition: box-shadow .2s, transform .2s;
+  }
+  .card:hover { box-shadow: 0 6px 22px rgba(11,31,58,.1); transform: translateY(-2px); }
+  .rbadge {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; padding: 3px 9px; border-radius: 4px; margin-bottom: 10px;
+  }
+  .rb-exec { background: var(--teal-lt); color: var(--teal); }
+  .rb-tech { background: #DDE4EF; color: var(--navy2); }
+  .rb-spec { background: var(--gold-lt); color: var(--gold); }
+  .rb-ops  { background: #E5EAF2; color: #2D3D5A; }
+  .cicon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 10px; }
+  .ci-t { background: var(--teal-lt); }
+  .ci-g { background: var(--gold-lt); }
+  .ci-n { background: #DDE4EF; }
+  .card h3 { font-size: 14px; margin-bottom: 7px; }
+  .card p  { font-size: 12.5px; line-height: 1.6; margin-bottom: 10px; }
+  .slist { display: flex; flex-wrap: wrap; gap: 5px; }
+  .stag { font-size: 11px; font-weight: 500; background: var(--smoke); border: 1px solid var(--border); color: var(--slate); padding: 2px 8px; border-radius: 4px; }
+
+  /* ── ORG CHART ── */
+  .org-wrap { overflow-x: auto; }
+
+  /* ── PROCESS ── */
+  .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .pcol { background: var(--white); border-radius: 12px; border: 1px solid var(--border); padding: 18px 20px; }
+  .pcol-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+  .pcol-head h3 { font-size: 14px; }
+  .pdot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .step { display: flex; gap: 12px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .step:last-child { border-bottom: none; padding-bottom: 0; }
+  .snum { min-width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .sn-t { background: var(--teal-lt); color: var(--teal); }
+  .sn-g { background: var(--gold-lt); color: var(--gold); }
+  .step-body strong { display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+  .step-body span   { font-size: 12px; color: var(--slate); line-height: 1.55; }
+
+  /* ── TIMELINE ── */
+  .phase-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
+  .pcard { background: var(--white); border-radius: 10px; border: 1px solid var(--border); padding: 12px 14px; }
+  .ptag  { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+  .pcard h3 { font-size: 13px; margin-bottom: 3px; }
+  .pcard p  { font-size: 11px; color: var(--slate-lt); }
+  .tl-wrap { background: var(--white); border-radius: 12px; border: 1px solid var(--border); padding: 18px 20px; }
+  .tl-head { display: grid; grid-template-columns: 110px repeat(12,1fr); font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--slate-lt); margin-bottom: 6px; }
+  .tl-row  { display: grid; grid-template-columns: 110px repeat(12,1fr); align-items: center; margin-bottom: 7px; }
+  .tl-lbl  { font-size: 11px; font-weight: 600; color: var(--navy); padding-right: 8px; line-height: 1.3; }
+  .tl-cell { height: 26px; }
+  .tl-bar  { height: 22px; border-radius: 4px; margin: 2px 1px; display: flex; align-items: center; padding-left: 7px; font-size: 9px; font-weight: 700; letter-spacing: 0.3px; color: #fff; text-transform: uppercase; overflow: hidden; white-space: nowrap; }
+  .tl-bar.mid  { border-radius: 0; padding-left: 0; }
+  .tl-bar.tail { border-radius: 0 4px 4px 0; padding-left: 0; }
+  .ph1 { background: var(--teal); }
+  .ph2 { background: var(--navy2); }
+  .ph3 { background: var(--gold); }
+  .ph4 { background: #5B6FA8; }
+  .tl-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+  .tl-leg { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--slate); }
+  .tl-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── KPI ── */
+  .kpi-grp { margin-bottom: 22px; }
+  .kpi-head { font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); margin-bottom: 6px; padding-bottom: 5px; border-bottom: 2px solid var(--teal-lt); }
+  .kpi-tbl { width: 100%; border-collapse: collapse; }
+  .kpi-tbl th { text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--slate-lt); padding: 7px 10px; background: var(--smoke); border-bottom: 1px solid var(--border); }
+  .kpi-tbl td { padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 12.5px; color: var(--navy); }
+  .kpi-tbl tr:last-child td { border-bottom: none; }
+  .kpi-tbl tr:hover td { background: #FAFAFA; }
+  .kpi-tbl td:nth-child(2) { color: var(--slate); }
+  .kpi-tbl td:nth-child(5) { color: var(--slate); font-size: 12px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 5px; }
+  .pg { background: #DCFCE7; color: #166534; }
+  .pb { background: #DBEAFE; color: #1D4ED8; }
+  .pa { background: #FEF3C7; color: #92400E; }
+  .pr { background: var(--red-lt); color: var(--red); }
+
+  /* ── ALERT ── */
+  .alert { border-radius: 10px; padding: 13px 16px; font-size: 13px; line-height: 1.6; margin-top: 14px; }
+  .a-teal { background: var(--teal-lt); border: 1px solid #8ECFC4; color: #0B5C4E; }
+  .a-gold { background: var(--gold-lt); border: 1px solid var(--gold-md); color: #6B4A0A; }
+
+  /* ── FOOTER ── */
+  .slide-footer { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--slate-lt); letter-spacing: 0.2px; }
+
+  /* ── CONTROLS ── */
+  .nav-btns { position: fixed; bottom: 24px; right: 24px; display: flex; gap: 8px; z-index: 999; }
+  .nav-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 17px; color: var(--navy);
+    box-shadow: 0 2px 12px rgba(0,0,0,.1); transition: all .15s; line-height: 1;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .nav-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+  .slide-ctr {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; font-weight: 700; color: var(--slate); z-index: 999;
+    background: var(--white); padding: 5px 16px; border-radius: 20px;
+    border: 1.5px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+
+  @media (max-width: 700px) {
+    .pgrid { grid-template-columns: 1fr; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .phase-cards { grid-template-columns: 1fr 1fr; }
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    .slide { padding: 78px 1rem 80px; }
+    #slide-0 { padding: 0 1.25rem; }
+    .cover-title { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">M</div>
+    <span class="nav-title">Medicare Health System · RAI Framework</span>
+  </div>
+  <div class="nav-links" id="navLinks">
+    <a href="#" class="active" onclick="goTo(0);return false;">Cover</a>
+    <a href="#" onclick="goTo(1);return false;">Roles</a>
+    <a href="#" onclick="goTo(2);return false;">Org Chart</a>
+    <a href="#" onclick="goTo(3);return false;">Vetting</a>
+    <a href="#" onclick="goTo(4);return false;">Timeline</a>
+    <a href="#" onclick="goTo(5);return false;">KPIs</a>
+  </div>
+</nav>
+
+<!-- ══ SLIDE 0 COVER ══ -->
+<div class="slide active" id="slide-0">
+  <div class="cover-inner">
+    <div class="cover-eyebrow">Responsible AI Framework · 2025–2026</div>
+    <div class="cover-chips">
+      <span class="chip">Healthcare</span>
+      <span class="chip">Clinical AI</span>
+      <span class="chip">Predictive Analytics</span>
+      <span class="chip gold">AI Governance</span>
+      <span class="chip gold">NIST AI RMF</span>
+    </div>
+    <h1 class="cover-title">Medicare Health System<br>Responsible AI<br>Governance Framework</h1>
+    <p class="cover-sub">A structured approach to deploying clinical decision support AI responsibly — defining the roles, processes, accountability structures, and measurable standards that align Medicare Health System's AI capabilities with its ethical commitments to patients, clinicians, and regulators.</p>
+    <div class="cover-meta">
+      <div>
+        <div class="cover-meta-label">Organization</div>
+        <div class="cover-meta-val">Medicare Health System</div>
+      </div>
+      <div>
+        <div class="cover-meta-label">Sector</div>
+        <div class="cover-meta-val">Healthcare · Clinical AI</div>
+      </div>
+      <div>
+        <div class="cover-meta-label">Framework Version</div>
+        <div class="cover-meta-val">1.0 — May 2025</div>
+      </div>
+      <div>
+        <div class="cover-meta-label">Regulatory Alignment</div>
+        <div class="cover-meta-val">NIST AI RMF · HIPAA · ONC · FDA SaMD</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 1 ROLES ══ -->
+<div class="slide" id="slide-1">
+  <div class="eyebrow">Section 01 — Governance Structure</div>
+  <h1 class="slide-title">Top Seven RAI Job Roles</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">Each role is purpose-built for the unique risks of clinical AI — where algorithmic bias, model opacity, and patient data misuse can directly affect care quality, patient safety, and institutional liability under HIPAA, 21st Century Cures Act, and FDA SaMD regulations.</p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="rbadge rb-exec">Executive</div>
+      <div class="cicon ci-t">🏥</div>
+      <h3>Chief AI Ethics Officer (CAEO)</h3>
+      <p>Sets the ethical vision for all clinical AI initiatives, chairs the AI Ethics Board, and reports jointly to the Chief Medical Officer and Board of Directors. Serves as external spokesperson on responsible AI to CMS, ONC, FDA, and the public.</p>
+      <div class="slist">
+        <span class="stag">Healthcare ethics</span><span class="stag">NIST AI RMF</span>
+        <span class="stag">Regulatory strategy</span><span class="stag">Clinical governance</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="rbadge rb-tech">Technical Lead</div>
+      <div class="cicon ci-t">⚖️</div>
+      <h3>Clinical AI Fairness &amp; Bias Engineer</h3>
+      <p>Audits all clinical risk-scoring, diagnostic, and triage models for disparate outcomes across race, ethnicity, sex, disability, and socioeconomic status. Applies AIF360 and CMS health equity metrics. Ensures models do not perpetuate historical disparities in care access or treatment.</p>
+      <div class="slist">
+        <span class="stag">AIF360 / fairness-ML</span><span class="stag">Health equity metrics</span>
+        <span class="stag">Statistical testing</span><span class="stag">Python / R</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="rbadge rb-spec">Specialist</div>
+      <div class="cicon ci-g">🔍</div>
+      <h3>Healthcare AI Risk &amp; Compliance Manager</h3>
+      <p>Aligns AI with HIPAA, 21st Century Cures Act, ONC Interoperability Rule, and FDA SaMD guidance. Owns the AI risk register, coordinates audits, and liaises with CMS, FDA, and accreditation bodies including The Joint Commission and NCQA.</p>
+      <div class="slist">
+        <span class="stag">HIPAA / HITECH</span><span class="stag">FDA SaMD / AI-ML Action Plan</span>
+        <span class="stag">ONC Interoperability</span><span class="stag">Joint Commission</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="rbadge rb-tech">Technical Lead</div>
+      <div class="cicon ci-n">🔬</div>
+      <h3>Clinical Model Explainability Lead</h3>
+      <p>Ensures every clinical AI model produces clinician-readable and patient-readable rationale. Implements SHAP/LIME within EHR workflows, designs ONC-compliant patient disclosures, and advises on informed-consent language for AI-assisted clinical decisions.</p>
+      <div class="slist">
+        <span class="stag">SHAP / LIME</span><span class="stag">EHR / FHIR integration</span>
+        <span class="stag">Clinical UX</span><span class="stag">ONC transparency rules</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="rbadge rb-spec">Specialist</div>
+      <div class="cicon ci-g">🔒</div>
+      <h3>Healthcare AI Data Privacy Specialist</h3>
+      <p>Governs the PHI lifecycle across all AI training pipelines — patient consent, data minimization, HIPAA de-identification (Safe Harbor &amp; Expert Determination), and right of access. Conducts HIPAA-aligned PIAs and manages Business Associate Agreements for all AI vendors.</p>
+      <div class="slist">
+        <span class="stag">HIPAA / HITECH</span><span class="stag">PHI de-identification</span>
+        <span class="stag">BAA management</span><span class="stag">PIA methodology</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="rbadge rb-ops">Operational</div>
+      <div class="cicon ci-t">⚙️</div>
+      <h3>Clinical MLOps &amp; Model Governance Engineer</h3>
+      <p>Maintains the clinical model registry, enforces deployment gates, monitors models for clinical drift and performance degradation, and manages the full lifecycle from validation to decommission in alignment with FDA's proposed AI/ML SaMD pre-market framework and Predetermined Change Control Plans.</p>
+      <div class="slist">
+        <span class="stag">MLflow / Kubeflow</span><span class="stag">FDA SaMD lifecycle</span>
+        <span class="stag">Drift detection</span><span class="stag">EHR / FHIR APIs</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="rbadge rb-spec">Oversight</div>
+      <div class="cicon ci-n">🧭</div>
+      <h3>AI Ethics Board Member (×3 Rotating)</h3>
+      <p>Independent cross-functional reviewers: a licensed Physician (clinical safety perspective), a Patient Advocate / Community Health representative (vulnerable populations), and a Bioethicist / Legal expert. Evaluate high-risk clinical models, escalate patient safety concerns to the CMO, and ensure community voices shape AI deployment.</p>
+      <div class="slist">
+        <span class="stag">Clinical domain expertise</span><span class="stag">Bioethics</span>
+        <span class="stag">Patient advocacy</span><span class="stag">Health equity</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>Medicare Health System — RAI Framework 2025</span>
+    <span>Section 01 of 05</span>
+  </div>
+</div>
+
+<!-- ══ SLIDE 2 ORG CHART ══ -->
+<div class="slide" id="slide-2">
+  <div class="eyebrow">Section 02 — Accountability Structure</div>
+  <h1 class="slide-title">RAI Organizational Chart</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">Responsible AI governance spans three tiers: strategic accountability at Board and CMO level, cross-functional oversight through the Clinical AI Ethics Board, and day-to-day execution by specialized RAI units embedded in Clinical Informatics and Compliance.</p>
+
+  <div class="org-wrap">
+  <svg width="100%" viewBox="0 0 840 530" role="img" aria-label="Medicare Health System RAI Org Chart" style="display:block;min-width:680px;">
+    <defs>
+      <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M1 2.5 L8 5 L1 7.5" fill="none" stroke="#9CA3AF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+      <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M1 2.5 L8 5 L1 7.5" fill="none" stroke="#0A7E68" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+
+    <!-- Tier bands -->
+    <rect x="72" y="20" width="750" height="78" rx="8" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
+    <rect x="72" y="148" width="750" height="96" rx="8" fill="#D6F0EB" stroke="#0A7E68" stroke-width="1" stroke-dasharray="5 3" fill-opacity="0.45"/>
+    <rect x="72" y="294" width="750" height="98" rx="8" fill="#FBF0DC" stroke="#B87D1A" stroke-width="1" stroke-dasharray="5 3" fill-opacity="0.38"/>
+
+    <!-- Tier rotated labels -->
+    <text font-family="ui-sans-serif,system-ui,sans-serif" font-size="8" fill="#9CA3AF" font-weight="700" letter-spacing="0.8" text-anchor="middle" transform="rotate(-90) translate(-59,16)">STRATEGIC</text>
+    <text font-family="ui-sans-serif,system-ui,sans-serif" font-size="8" fill="#9CA3AF" font-weight="700" letter-spacing="0.8" text-anchor="middle" transform="rotate(-90) translate(-196,16)">OVERSIGHT</text>
+    <text font-family="ui-sans-serif,system-ui,sans-serif" font-size="8" fill="#9CA3AF" font-weight="700" letter-spacing="0.8" text-anchor="middle" transform="rotate(-90) translate(-343,16)">OPERATIONAL</text>
+
+    <!-- Tier inner labels -->
+    <text x="88" y="36" font-family="ui-sans-serif,system-ui,sans-serif" font-size="8.5" fill="#6B7280" font-weight="700" letter-spacing="1">BOARD &amp; EXECUTIVE LEVEL</text>
+    <text x="88" y="163" font-family="ui-sans-serif,system-ui,sans-serif" font-size="8.5" fill="#0A7E68" font-weight="700" letter-spacing="1">CLINICAL AI ETHICS BOARD — CROSS-FUNCTIONAL OVERSIGHT</text>
+    <text x="88" y="309" font-family="ui-sans-serif,system-ui,sans-serif" font-size="8.5" fill="#B87D1A" font-weight="700" letter-spacing="1">OPERATIONAL RAI UNITS</text>
+
+    <!-- Tier 1 nodes -->
+    <!-- Board -->
+    <rect x="112" y="42" width="195" height="44" rx="8" fill="#0B1F3A"/>
+    <text x="209" y="60" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" font-weight="700" fill="white" text-anchor="middle">Board of Directors</text>
+    <text x="209" y="76" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.65)" text-anchor="middle">Ultimate AI accountability</text>
+
+    <!-- CMO -->
+    <rect x="342" y="42" width="182" height="44" rx="8" fill="#142D52"/>
+    <text x="433" y="60" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" font-weight="700" fill="white" text-anchor="middle">Chief Medical Officer</text>
+    <text x="433" y="76" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.65)" text-anchor="middle">Patient safety sponsor</text>
+
+    <!-- CEO -->
+    <rect x="560" y="42" width="240" height="44" rx="8" fill="#1E3A5F"/>
+    <text x="680" y="60" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" font-weight="700" fill="white" text-anchor="middle">CEO / Executive Leadership</text>
+    <text x="680" y="76" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.65)" text-anchor="middle">Strategic AI direction</text>
+
+    <!-- Tier 2 nodes -->
+    <!-- CAEO -->
+    <rect x="88" y="170" width="188" height="56" rx="8" fill="#0A7E68"/>
+    <text x="182" y="191" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11.5" font-weight="700" fill="white" text-anchor="middle">Chief AI Ethics Officer</text>
+    <text x="182" y="207" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.82)" text-anchor="middle">Chairs Ethics Board</text>
+    <text x="182" y="220" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.82)" text-anchor="middle">Reports to CMO + Board</text>
+
+    <!-- Ethics Board -->
+    <rect x="306" y="170" width="220" height="56" rx="8" fill="#142D52"/>
+    <text x="416" y="191" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11.5" font-weight="700" fill="white" text-anchor="middle">Clinical AI Ethics Board</text>
+    <text x="416" y="207" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.82)" text-anchor="middle">Physician · Bioethicist</text>
+    <text x="416" y="220" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.82)" text-anchor="middle">Patient Advocate · Legal</text>
+
+    <!-- Risk & Compliance -->
+    <rect x="556" y="170" width="254" height="56" rx="8" fill="#374151"/>
+    <text x="683" y="191" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="white" text-anchor="middle">Healthcare AI Risk &amp; Compliance</text>
+    <text x="683" y="207" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.82)" text-anchor="middle">HIPAA · FDA SaMD · ONC</text>
+    <text x="683" y="220" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.82)" text-anchor="middle">CMS · Joint Commission</text>
+
+    <!-- Connectors T1 → T2 -->
+    <line x1="209" y1="86" x2="209" y2="116" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="209" y1="116" x2="182" y2="116" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="182" y1="116" x2="182" y2="170" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ar1)"/>
+
+    <line x1="433" y1="86" x2="433" y2="116" stroke="#9CA3AF" stroke-width="1.2"/>
+    <line x1="433" y1="116" x2="416" y2="116" stroke="#9CA3AF" stroke-width="1.2"/>
+    <line x1="416" y1="116" x2="416" y2="170" stroke="#9CA3AF" stroke-width="1.2" marker-end="url(#ar1)"/>
+
+    <line x1="680" y1="86" x2="680" y2="116" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="680" y1="116" x2="683" y2="116" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="683" y1="116" x2="683" y2="170" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ar1)"/>
+
+    <!-- Connectors T2 → T3 -->
+    <line x1="182" y1="226" x2="182" y2="264" stroke="#0A7E68" stroke-width="1.3"/>
+    <line x1="182" y1="264" x2="152" y2="264" stroke="#0A7E68" stroke-width="1.3"/>
+    <line x1="152" y1="264" x2="152" y2="314" stroke="#0A7E68" stroke-width="1.3" marker-end="url(#ar2)"/>
+
+    <line x1="416" y1="226" x2="416" y2="264" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="416" y1="264" x2="338" y2="264" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="338" y1="264" x2="338" y2="314" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ar1)"/>
+    <line x1="416" y1="264" x2="530" y2="264" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="530" y1="264" x2="530" y2="314" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ar1)"/>
+
+    <line x1="683" y1="226" x2="683" y2="264" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="683" y1="264" x2="720" y2="264" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="720" y1="264" x2="720" y2="314" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ar1)"/>
+
+    <!-- Tier 3 operational boxes -->
+    <rect x="88"  y="314" width="162" height="64" rx="7" fill="white" stroke="#D1D5DB" stroke-width="1"/>
+    <rect x="88"  y="314" width="162" height="4"  rx="7" fill="#0A7E68"/>
+    <text x="169" y="338" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">Fairness &amp; Bias</text>
+    <text x="169" y="352" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">Engineering</text>
+    <text x="169" y="368" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9"  fill="#6B7280" text-anchor="middle">Health equity · CMS metrics</text>
+
+    <rect x="268" y="314" width="162" height="64" rx="7" fill="white" stroke="#D1D5DB" stroke-width="1"/>
+    <rect x="268" y="314" width="162" height="4"  rx="7" fill="#142D52"/>
+    <text x="349" y="338" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">Clinical Model</text>
+    <text x="349" y="352" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">Explainability</text>
+    <text x="349" y="368" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9"  fill="#6B7280" text-anchor="middle">SHAP · EHR · ONC rules</text>
+
+    <rect x="448" y="314" width="162" height="64" rx="7" fill="white" stroke="#D1D5DB" stroke-width="1"/>
+    <rect x="448" y="314" width="162" height="4"  rx="7" fill="#B87D1A"/>
+    <text x="529" y="338" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">Clinical MLOps &amp;</text>
+    <text x="529" y="352" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">Model Governance</text>
+    <text x="529" y="368" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9"  fill="#6B7280" text-anchor="middle">Drift · SaMD · Registry</text>
+
+    <rect x="628" y="314" width="178" height="64" rx="7" fill="white" stroke="#D1D5DB" stroke-width="1"/>
+    <rect x="628" y="314" width="178" height="4"  rx="7" fill="#374151"/>
+    <text x="717" y="338" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">Healthcare AI Data</text>
+    <text x="717" y="352" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">Privacy &amp; Compliance</text>
+    <text x="717" y="368" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9"  fill="#6B7280" text-anchor="middle">PHI · HIPAA · BAA</text>
+
+    <!-- Legend -->
+    <line x1="88" y1="444" x2="130" y2="444" stroke="#0B1F3A" stroke-width="1.5"/>
+    <text x="135" y="448" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" fill="#374151" font-weight="500">Direct accountability</text>
+    <line x1="268" y1="444" x2="310" y2="444" stroke="#9CA3AF" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <text x="315" y="448" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" fill="#374151" font-weight="500">Advisory / oversight relationship</text>
+  </svg>
+  </div>
+
+  <div class="slide-footer">
+    <span>Medicare Health System — RAI Framework 2025</span>
+    <span>Section 02 of 05</span>
+  </div>
+</div>
+
+<!-- ══ SLIDE 3 VETTING ══ -->
+<div class="slide" id="slide-3">
+  <div class="eyebrow">Section 03 — AI Vetting Processes</div>
+  <h1 class="slide-title">Clinical AI Vetting Processes</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">Medicare Health System applies a structured clinical review process before any AI model is used in patient care — whether built internally or procured from a vendor. Both tracks require Ethics Board approval and clinical validation before any patient-facing deployment.</p>
+
+  <div class="pgrid">
+    <div class="pcol">
+      <div class="pcol-head">
+        <div class="pdot" style="background:var(--teal)"></div>
+        <h3>Internally Developed Clinical AI</h3>
+      </div>
+      <div class="step">
+        <div class="snum sn-t">1</div>
+        <div class="step-body">
+          <strong>Clinical Use Case Registration</strong>
+          <span>Model team registers: intended clinical use, target patient population, EHR data sources, clinical sponsor (physician champion), and anticipated patient impact. Filed in the AI Governance Registry.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-t">2</div>
+        <div class="step-body">
+          <strong>Risk Tier &amp; FDA SaMD Classification</strong>
+          <span>CAEO and Risk Manager classify under NIST AI RMF tiers and FDA SaMD risk categories (Class I/II/III). High-risk diagnostic or treatment models trigger full FDA pre-market pathway review and Predetermined Change Control Plan drafting.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-t">3</div>
+        <div class="step-body">
+          <strong>HIPAA &amp; PHI Privacy Impact Assessment</strong>
+          <span>Privacy Specialist assesses patient consent, HIPAA de-identification method (Safe Harbor or Expert Determination), data minimization, and HITECH breach notification applicability. PIA filed before any PHI enters training pipelines.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-t">4</div>
+        <div class="step-body">
+          <strong>Health Equity &amp; Bias Audit</strong>
+          <span>Fairness Engineer tests model for disparate outcomes across race, ethnicity, sex, age, disability, and insurance status using CMS disparity metrics. Adverse Impact Ratio must be ≥ 0.80 for all protected groups.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-t">5</div>
+        <div class="step-body">
+          <strong>Clinical Validation Study</strong>
+          <span>Physician champion and Clinical Informatics run retrospective and/or prospective validation on Medicare Health System's own patient population. External validation required for all Tier 1 models prior to Ethics Board submission.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-t">6</div>
+        <div class="step-body">
+          <strong>Clinical AI Ethics Board Approval Gate</strong>
+          <span>Tier 1 models (diagnostic support, triage, treatment recommendation) require full board vote including physician and patient advocate. Tier 2 requires CAEO sign-off. No model touches patient data or care workflows without written approval.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-t">7</div>
+        <div class="step-body">
+          <strong>Staged Clinical Deployment &amp; Monitoring</strong>
+          <span>MLOps deploys: shadow mode → single clinical unit pilot → system-wide rollout. Clinical performance dashboards, health equity alerts, and clinician feedback channels active from day one in production.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcol">
+      <div class="pcol-head">
+        <div class="pdot" style="background:var(--gold)"></div>
+        <h3>Externally Procured Clinical AI</h3>
+      </div>
+      <div class="step">
+        <div class="snum sn-g">1</div>
+        <div class="step-body">
+          <strong>Vendor AI Disclosure &amp; Model Card Request</strong>
+          <span>Procurement issues a standardized AI Disclosure Questionnaire: training data demographics, patient population represented, FDA clearance status (510(k) / De Novo), known failure modes, and independent validation evidence.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-g">2</div>
+        <div class="step-body">
+          <strong>HIPAA BAA &amp; Regulatory Due Diligence</strong>
+          <span>Legal executes HIPAA Business Associate Agreement. Risk Manager verifies FDA 510(k) or De Novo clearance, SOC 2 Type II, ONC Health IT certification, and 21st Century Cures Act information-blocking compliance.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-g">3</div>
+        <div class="step-body">
+          <strong>Independent Health Equity Validation</strong>
+          <span>Medicare Health System's Fairness Engineer tests the vendor model on our own patient population for disparate outcomes. We do not rely solely on vendor-supplied performance metrics or training demographics.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-g">4</div>
+        <div class="step-body">
+          <strong>Local Clinical Validation</strong>
+          <span>Physician champion runs retrospective validation on our patient cohort. Models trained on different health systems or demographics require local re-validation — a known limitation of many commercial clinical AI products.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-g">5</div>
+        <div class="step-body">
+          <strong>AI-Specific Contractual Obligations</strong>
+          <span>Legal embeds clauses: audit rights, clinician override capability, model drift notification SLAs (≤72 hrs), PHI deletion rights on contract termination, adverse event disclosure windows, and patient right-to-explanation.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-g">6</div>
+        <div class="step-body">
+          <strong>Clinical AI Ethics Board Review</strong>
+          <span>Vendor tools used in patient diagnosis, risk stratification, or treatment decisions require the same Ethics Board gate as internal models. Board reviews vendor clinical evidence, equity testing, and failure mode analysis.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum sn-g">7</div>
+        <div class="step-body">
+          <strong>Annual Re-Assessment &amp; FDA Change Protocol</strong>
+          <span>All clinical AI vendors undergo full re-assessment annually, or within 30 days of: a model update, patient safety event, FDA enforcement action, or significant demographic shift in performance metrics.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert a-teal">
+    <strong>⚠ Clinical AI Ethics Board Approval Gate</strong> — All Tier 1 clinical AI models (diagnostic support, risk stratification, treatment recommendation, prior authorization) require written Ethics Board approval before any patient-facing deployment. The CAEO and CMO hold joint veto authority. No exceptions.
+  </div>
+
+  <div class="slide-footer">
+    <span>Medicare Health System — RAI Framework 2025</span>
+    <span>Section 03 of 05</span>
+  </div>
+</div>
+
+<!-- ══ SLIDE 4 TIMELINE ══ -->
+<div class="slide" id="slide-4">
+  <div class="eyebrow">Section 04 — Implementation Roadmap</div>
+  <h1 class="slide-title">12-Month RAI Launch Timeline</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">Four sequential phases build Medicare Health System's RAI organization from foundations to full clinical operation, coordinated with Joint Commission accreditation cycles, CMS reporting windows, and FDA SaMD regulatory milestones.</p>
+
+  <div class="phase-cards">
+    <div class="pcard" style="border-top:3px solid var(--teal);">
+      <div class="ptag" style="color:var(--teal);">Phase 1 · Q1</div>
+      <h3>Foundation</h3>
+      <p>Hire CAEO, charter Ethics Board with clinical &amp; patient representation, draft AI Policy v1.0 and HIPAA AI addendum</p>
+    </div>
+    <div class="pcard" style="border-top:3px solid var(--navy2);">
+      <div class="ptag" style="color:var(--navy2);">Phase 2 · Q2</div>
+      <h3>Build</h3>
+      <p>Staff all RAI roles, deploy governance tooling and model registry, audit all existing clinical AI for compliance gaps</p>
+    </div>
+    <div class="pcard" style="border-top:3px solid var(--gold);">
+      <div class="ptag" style="color:var(--gold);">Phase 3 · Q3</div>
+      <h3>Operationalize</h3>
+      <p>Launch vetting processes, activate clinical KPI dashboards, complete clinical staff RAI and HIPAA AI training</p>
+    </div>
+    <div class="pcard" style="border-top:3px solid #5B6FA8;">
+      <div class="ptag" style="color:#5B6FA8;">Phase 4 · Q4</div>
+      <h3>Mature</h3>
+      <p>External audit, Joint Commission submission, FDA SaMD alignment review, Board RAI annual report</p>
+    </div>
+  </div>
+
+  <div class="tl-wrap">
+    <div class="tl-head">
+      <div></div>
+      <div style="text-align:center">Jan</div><div style="text-align:center">Feb</div><div style="text-align:center">Mar</div>
+      <div style="text-align:center">Apr</div><div style="text-align:center">May</div><div style="text-align:center">Jun</div>
+      <div style="text-align:center">Jul</div><div style="text-align:center">Aug</div><div style="text-align:center">Sep</div>
+      <div style="text-align:center">Oct</div><div style="text-align:center">Nov</div><div style="text-align:center">Dec</div>
+    </div>
+
+    <div class="tl-row"><div class="tl-lbl">Hire CAEO</div>
+      <div class="tl-cell"><div class="tl-bar ph1">Jan</div></div>
+      <div class="tl-cell"><div class="tl-bar ph1 mid"></div></div>
+      <div class="tl-cell"><div class="tl-bar ph1 tail"></div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">Ethics Board Charter</div>
+      <div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph1">Feb</div></div>
+      <div class="tl-cell"><div class="tl-bar ph1 tail"></div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">AI Policy + HIPAA Addendum ✓</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph1">Mar ✓</div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">Staff All RAI Roles</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph2">Apr</div></div>
+      <div class="tl-cell"><div class="tl-bar ph2 mid"></div></div>
+      <div class="tl-cell"><div class="tl-bar ph2 tail"></div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">Audit Existing Clinical AI</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph2">May</div></div>
+      <div class="tl-cell"><div class="tl-bar ph2 tail">Jun ✓</div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">Model Registry Go-Live ✓</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph2">Jun ✓</div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">Vetting Process Go-Live</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph3">Jul</div></div>
+      <div class="tl-cell"><div class="tl-bar ph3 mid"></div></div>
+      <div class="tl-cell"><div class="tl-bar ph3 tail"></div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">KPI Dashboard Launch ✓</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph3">Aug ✓</div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">Clinical Staff RAI Training ✓</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph3">Sep ✓</div></div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">External Audit + FDA Alignment</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph4">Oct</div></div>
+      <div class="tl-cell"><div class="tl-bar ph4 tail"></div></div>
+      <div class="tl-cell"></div>
+    </div>
+    <div class="tl-row"><div class="tl-lbl">Board RAI Annual Report ✓</div>
+      <div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div><div class="tl-cell"></div>
+      <div class="tl-cell"><div class="tl-bar ph4">Dec ✓</div></div>
+    </div>
+
+    <div class="tl-legend">
+      <div class="tl-leg"><div class="tl-dot" style="background:var(--teal)"></div>Phase 1: Foundation</div>
+      <div class="tl-leg"><div class="tl-dot" style="background:var(--navy2)"></div>Phase 2: Build</div>
+      <div class="tl-leg"><div class="tl-dot" style="background:var(--gold)"></div>Phase 3: Operationalize</div>
+      <div class="tl-leg"><div class="tl-dot" style="background:#5B6FA8"></div>Phase 4: Mature</div>
+      <div class="tl-leg" style="margin-left:auto;">✓ = Major milestone</div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>Medicare Health System — RAI Framework 2025</span>
+    <span>Section 04 of 05</span>
+  </div>
+</div>
+
+<!-- ══ SLIDE 5 KPIs ══ -->
+<div class="slide" id="slide-5">
+  <div class="eyebrow">Section 05 — Key Performance Indicators</div>
+  <h1 class="slide-title">Clinical RAI Key Performance Indicators</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">Following <em>Ethical Machines</em> best practices, every KPI is SMART and tied directly to Medicare Health System's stated AI ethical principles. Each missed target triggers a specific named action with an owner and deadline — ensuring accountability at the point of patient care risk.</p>
+
+  <!-- Patient Safety -->
+  <div class="kpi-grp">
+    <div class="kpi-head">🏥 Patient Safety &amp; Clinical Quality</div>
+    <table class="kpi-tbl">
+      <thead><tr><th style="width:22%">KPI</th><th style="width:26%">Definition</th><th style="width:13%">Cadence</th><th style="width:13%">Target</th><th style="width:26%">Action if Missed</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AI-Contributed Adverse Event Rate</strong></td>
+          <td>Reportable patient safety events where an AI recommendation was a contributing factor, per 10,000 AI-touched clinical encounters</td>
+          <td>Monthly</td>
+          <td><span class="pill pg">≤ 1 per 10k</span></td>
+          <td>Immediate clinical suspension; root-cause review within 24 hrs; CMO and Safety Officer notification</td>
+        </tr>
+        <tr>
+          <td><strong>Clinician Override Rate</strong></td>
+          <td>% of AI recommendations overridden by clinical staff. Sustained low rate signals automation bias risk; sustained high rate signals poor model fit.</td>
+          <td>Monthly</td>
+          <td><span class="pill pb">5% – 30%</span></td>
+          <td>Outside band: investigate automation bias (low) or model relevance (high); adjust clinical workflow integration</td>
+        </tr>
+        <tr>
+          <td><strong>Clinical Validation Currency</strong></td>
+          <td>% of Tier 1 clinical AI models with a validation study on Medicare Health System's patient population completed within the past 24 months</td>
+          <td>Quarterly</td>
+          <td><span class="pill pg">100%</span></td>
+          <td>Move to shadow mode only; suspend patient-facing use until re-validated by physician champion</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Health Equity -->
+  <div class="kpi-grp">
+    <div class="kpi-head">⚖️ Health Equity &amp; Fairness</div>
+    <table class="kpi-tbl">
+      <thead><tr><th style="width:22%">KPI</th><th style="width:26%">Definition</th><th style="width:13%">Cadence</th><th style="width:13%">Target</th><th style="width:26%">Action if Missed</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Adverse Impact Ratio — Clinical</strong></td>
+          <td>Positive prediction rate for protected class ÷ rate for reference group (race, ethnicity, sex, insurance status) per clinical risk and diagnostic models, using CMS disparity metrics</td>
+          <td>Monthly, per model</td>
+          <td><span class="pill pg">≥ 0.80</span></td>
+          <td>Freeze clinical use; bias audit within 5 business days; Ethics Board and CMO notification</td>
+        </tr>
+        <tr>
+          <td><strong>Health Equity Audit Coverage</strong></td>
+          <td>% of Tier 1 + Tier 2 clinical models with a completed, documented health equity audit in the past 12 months</td>
+          <td>Quarterly</td>
+          <td><span class="pill pg">100%</span></td>
+          <td>Block patient-facing deployment; model placed in audit queue with 30-day resolution deadline</td>
+        </tr>
+        <tr>
+          <td><strong>Patient Disparity Complaint Rate</strong></td>
+          <td>% of patient grievances alleging discriminatory AI-informed care decisions vs. total AI-touched encounters, tracked per CMS quality reporting</td>
+          <td>Quarterly</td>
+          <td><span class="pill pg">&lt; 0.2%</span></td>
+          <td>Escalate to CAEO and Patient Advocate Board member; root-cause investigation within 10 business days</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Transparency -->
+  <div class="kpi-grp">
+    <div class="kpi-head">🔬 Transparency &amp; Explainability</div>
+    <table class="kpi-tbl">
+      <thead><tr><th style="width:22%">KPI</th><th style="width:26%">Definition</th><th style="width:13%">Cadence</th><th style="width:13%">Target</th><th style="width:26%">Action if Missed</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Clinician Explanation Availability</strong></td>
+          <td>% of Tier 1 clinical AI outputs accompanied by a SHAP-based clinician-readable rationale accessible within the EHR workflow at point of care</td>
+          <td>Monthly</td>
+          <td><span class="pill pb">100%</span></td>
+          <td>Halt clinical deployment; Explainability Lead SLA: integrate explanations within 14 days</td>
+        </tr>
+        <tr>
+          <td><strong>Patient AI Disclosure Rate</strong></td>
+          <td>% of patients whose care involved a Tier 1 AI model who received an ONC-compliant disclosure of AI use in clinical summary or consent documentation per 21st Century Cures Act</td>
+          <td>Monthly</td>
+          <td><span class="pill pb">100%</span></td>
+          <td>Suspend patient-facing use; Legal and Privacy review within 48 hrs for HIPAA compliance risk</td>
+        </tr>
+        <tr>
+          <td><strong>Clinician AI Trust Score</strong></td>
+          <td>% of clinical staff who rate AI model explanations as "clinically useful" or better in supporting their decision-making, measured via validated survey</td>
+          <td>Semi-annually</td>
+          <td><span class="pill pb">≥ 70%</span></td>
+          <td>Redesign EHR integration and explanation UX; re-survey within 60 days; escalate findings to CMO</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Governance -->
+  <div class="kpi-grp">
+    <div class="kpi-head">🛡️ Governance Process Integrity</div>
+    <table class="kpi-tbl">
+      <thead><tr><th style="width:22%">KPI</th><th style="width:26%">Definition</th><th style="width:13%">Cadence</th><th style="width:13%">Target</th><th style="width:26%">Action if Missed</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Ethics Board Review Rate</strong></td>
+          <td>% of Tier 1 clinical AI deployments with documented Ethics Board approval before any patient-facing use</td>
+          <td>Per deployment</td>
+          <td><span class="pill pa">100%</span></td>
+          <td>Immediate rollback; post-incident review; CMO and Board notification within 48 hrs</td>
+        </tr>
+        <tr>
+          <td><strong>Vetting Cycle Time</strong></td>
+          <td>Avg. calendar days from clinical AI registration to Ethics Board decision for Tier 2 models</td>
+          <td>Monthly</td>
+          <td><span class="pill pa">≤ 35 days</span></td>
+          <td>Identify bottleneck in vetting pipeline; resource reallocation or process streamlining within 15 days</td>
+        </tr>
+        <tr>
+          <td><strong>Vendor BAA Compliance Rate</strong></td>
+          <td>% of external clinical AI vendors with a current HIPAA BAA on file AND completed annual re-assessment on schedule</td>
+          <td>Annually</td>
+          <td><span class="pill pa">100%</span></td>
+          <td>Suspend vendor PHI data flow and clinical use until BAA is executed and assessment completed</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Privacy -->
+  <div class="kpi-grp">
+    <div class="kpi-head">🔒 Data Privacy &amp; HIPAA Compliance</div>
+    <table class="kpi-tbl">
+      <thead><tr><th style="width:22%">KPI</th><th style="width:26%">Definition</th><th style="width:13%">Cadence</th><th style="width:13%">Target</th><th style="width:26%">Action if Missed</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>PHI Privacy Impact Assessment Rate</strong></td>
+          <td>% of new or significantly updated clinical AI models with a completed HIPAA-aligned PIA on file before any PHI enters training or inference pipelines</td>
+          <td>Quarterly</td>
+          <td><span class="pill pg">100%</span></td>
+          <td>Block PHI access to model; Privacy Specialist SLA: PIA completed within 10 business days</td>
+        </tr>
+        <tr>
+          <td><strong>AI-Related HIPAA Breach Incidents</strong></td>
+          <td>Number of HIPAA breach notification events per year where an AI system was the primary or contributing cause of unauthorized PHI disclosure</td>
+          <td>Annually</td>
+          <td><span class="pill pr">0</span></td>
+          <td>Immediate incident response protocol; HITECH 60-day breach notification clock starts; OCR notification if threshold met</td>
+        </tr>
+        <tr>
+          <td><strong>Clinical RAI Training Completion</strong></td>
+          <td>% of clinical and technical staff who interact with AI who completed annual HIPAA AI training and RAI ethics module</td>
+          <td>Annually</td>
+          <td><span class="pill pg">≥ 95%</span></td>
+          <td>Restrict clinical AI system access after 30-day grace period; report non-compliance to department heads</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert a-gold">
+    <strong>Ethical Machines KPI Principle Applied:</strong> Every KPI triggers a specific named action with an owner and deadline — not a passive "review." Targets are threshold-based and calibrated to clinical risk thresholds so that outcomes are unambiguous, actionable, and traceable to patient safety outcomes.
+  </div>
+
+  <div class="slide-footer">
+    <span>Medicare Health System — RAI Framework 2025</span>
+    <span>Section 05 of 05</span>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="slide-ctr" id="ctr">1 / 6</div>
+<div class="nav-btns">
+  <button class="nav-btn" id="prev" onclick="go(-1)" disabled>&#8592;</button>
+  <button class="nav-btn" id="next" onclick="go(1)">&#8594;</button>
+</div>
+
+<script>
+  let cur = 0;
+  const N = 6;
+  const slides = document.querySelectorAll('.slide');
+  const links  = document.querySelectorAll('.nav-links a');
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    links[cur].classList.remove('active');
+    cur = Math.max(0, Math.min(N-1, n));
+    slides[cur].classList.add('active');
+    links[cur].classList.add('active');
+    document.getElementById('ctr').textContent = (cur+1) + ' / ' + N;
+    document.getElementById('prev').disabled = cur === 0;
+    document.getElementById('next').disabled = cur === N-1;
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function go(d) { goTo(cur+d); }
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
+    if (e.key==='ArrowLeft' ||e.key==='ArrowUp')   go(-1);
+  });
+</script>
+</body>
+</html>
